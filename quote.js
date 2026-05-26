@@ -42,9 +42,9 @@ function supportNote(d){
 function renderCompetition(q){
   const box=document.getElementById('competitionBox');
   if(!box)return;
-  if(q.bookCall){box.innerHTML='<strong>What you may pay with competitors</strong><p class="small">District or multi-campus comparisons should be reviewed on a walkthrough.</p>';return;}
-  if(!q.students){box.innerHTML='<strong>What you may pay with competitors</strong><p class="small">Enter student enrollment to estimate what another digital hall pass might cost at $2.79/student.</p>';return;}
-  box.innerHTML='<strong>What you may pay with competitors</strong><p class="small">At a common digital hall pass rate of <b>$2.79/student</b>, your campus may pay:</p><div class="compNumber">'+money(q.competitorLicense)+'/year</div><div class="compLine"><span>HallPass license at $1.25/student</span><b>'+money(q.annualLicense)+'/year</b></div><div class="compLine savings"><span>Estimated license savings</span><b>'+money(q.licenseSavings)+'/year</b></div><p class="small">This comparison is not part of your HallPass quote. It is shown to help compare annual software cost.</p>';
+  if(q.bookCall){box.innerHTML='<strong>What competitors may cost</strong><p class="small">District comparisons should be reviewed on a walkthrough.</p>';return;}
+  if(!q.students){box.innerHTML='<strong>What competitors may cost</strong><p class="small">Enter enrollment to compare against a $2.79/student price.</p>';return;}
+  box.innerHTML='<strong>What competitors may cost</strong><div class="compMeta">Estimated at $2.79 per student</div><div class="compNumber">'+money(q.competitorLicense)+'/year</div><div class="compLine"><span>HallPass license</span><b>'+money(q.annualLicense)+'/year</b></div><div class="compLine savings"><span>Your estimated savings</span><b>'+money(q.licenseSavings)+'/year</b></div>';
 }
 
 function renderEstimate(showMessage){
@@ -62,9 +62,6 @@ function renderEstimate(showMessage){
   }
   d.supportRoutingNotes=supportNote(d);
   d.notesForCrm='Rate=$1.25; Students='+d.students+'; AnnualLicense='+d.annualLicense+'; SetupFee='+d.setupFee+'; DataConnectionFee='+d.dataConnectionFee+'; ManagedFee='+d.managedFee+'; Year1='+d.yearOneTotal+'; Renewal='+d.renewalEstimate+'; CompetitorRate=$2.79; LicenseSavings='+d.licenseSavings+'; GoogleWorkspace='+d.googleWorkspace+'; CampusLead='+d.campusLead+'; LeadName='+(d.leadName||'')+'; LeadEmail='+(d.leadEmail||'')+'; DataConnection='+d.dataConnection+'; Support='+d.support+'; SupportRouting='+d.supportRoutingNotes+'; UserNotes='+(d.notes||'');
-  const subject=encodeURIComponent('HallPass quote request - '+(d.campus||'Campus'));
-  const body=encodeURIComponent(Object.entries(d).map(([k,v])=>k+': '+v).join('\n'));
-  document.getElementById('emailLink').href='mailto:'+CONTACT_EMAIL+'?subject='+subject+'&body='+body;
   if(showMessage){const msg=document.getElementById('message');msg.className='notice';msg.style.display='block';msg.textContent='Submitting quote request...';}
   return d;
 }
