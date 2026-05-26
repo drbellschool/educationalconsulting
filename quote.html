@@ -46,7 +46,7 @@
   </main>
   <footer><div class="wrap"><strong>Lone Star Teacher</strong><br>Questions? <a href="mailto:adam@lonestarteacher.com">adam@lonestarteacher.com</a></div></footer>
   <script>
-    const QUOTE_ENDPOINT = "#";
+    const QUOTE_ENDPOINT = "https://script.google.com/macros/s/AKfycbwTzIrILD45IdEkBrju0S0YxSXBSC8J6qKUmVx39nSQu2JezDVoaSAjMu8gG7hfTbe_4w/exec";
     const BOOKING_LINK = "#";
     const params = new URLSearchParams(window.location.search);
     const aliases = {lead:["lead","leadid","id"],name:["name","principal"],email:["email"],district:["district"],campus:["campus","school"],students:["students","enrollment"],type:["type","campustype"],region:["region","esc"],city:["city"],features:["features"]};
@@ -62,7 +62,7 @@
       const subject=encodeURIComponent("HallPass quote request - "+(data.campus||"Campus"));
       const body=encodeURIComponent("LeadID: "+data.lead+"\nName: "+data.name+"\nEmail: "+data.email+"\nDistrict: "+data.district+"\nCampus: "+data.campus+"\nCity: "+data.city+"\nESC Region: "+data.region+"\nStudents: "+data.students+"\nCampus Type: "+data.type+"\nFeature Focus: "+data.features+"\nEstimate: "+priceText+"\nNotes: "+data.notes);
       document.getElementById("emailLink").href="mailto:adam@lonestarteacher.com?subject="+subject+"&body="+body;
-      if(showMessage){const msg=document.getElementById("message");msg.className="notice";msg.style.display="block";msg.textContent="Estimate updated. Next step: connect this page to the CRM endpoint so submissions write into Google Sheets automatically. For now, use the Email Adam button.";}
+      if(showMessage){const msg=document.getElementById("message");msg.className="notice";msg.style.display="block";msg.textContent="Submitting quote request...";}
       return data;
     }
     function applyPrefill(){
@@ -73,7 +73,7 @@
     }
     document.getElementById("bookLink").addEventListener("click",e=>{if(BOOKING_LINK==="#"){e.preventDefault();alert("Booking link has not been added yet.");}});
     document.getElementById("quoteForm").addEventListener("input",()=>updateEstimate(false));
-    document.getElementById("quoteForm").addEventListener("submit",async e=>{e.preventDefault();const data=updateEstimate(true);data.timestamp=new Date().toISOString();if(QUOTE_ENDPOINT==="#")return;const msg=document.getElementById("message");try{await fetch(QUOTE_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(data)});msg.className="notice ok";msg.style.display="block";msg.textContent="Quote request submitted. Adam will follow up.";}catch(err){msg.className="notice";msg.style.display="block";msg.textContent="The estimate was calculated, but submission failed. Please email Adam.";}});
+    document.getElementById("quoteForm").addEventListener("submit",async e=>{e.preventDefault();const data=updateEstimate(true);data.timestamp=new Date().toISOString();data.sourceUrl=window.location.href;const msg=document.getElementById("message");try{await fetch(QUOTE_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(data)});msg.className="notice ok";msg.style.display="block";msg.textContent="Quote request submitted. Adam will follow up.";}catch(err){msg.className="notice";msg.style.display="block";msg.textContent="The estimate was calculated, but submission failed. Please email Adam.";}});
     applyPrefill();
   </script>
 </body>
