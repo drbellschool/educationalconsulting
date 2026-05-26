@@ -42,9 +42,9 @@ function supportNote(d){
 function renderCompetition(q){
   const box=document.getElementById('competitionBox');
   if(!box)return;
-  if(q.bookCall){box.innerHTML='<strong>Competition estimate</strong><p class="small">District or multi-campus comparison should be reviewed on a walkthrough.</p>';return;}
-  if(!q.students){box.innerHTML='<strong>Competition estimate</strong><p class="small">Enter student enrollment to compare against a common $2.79/student digital hall pass price.</p>';return;}
-  box.innerHTML='<strong>Competition estimate</strong><p class="small">At $2.79/student, another digital hall pass may cost about <b>'+money(q.competitorLicense)+'/year</b>.</p><p class="small">HallPass license at $1.25/student: <b>'+money(q.annualLicense)+'/year</b>.</p><p class="small"><b>Estimated license savings: '+money(q.licenseSavings)+'/year</b>.</p>';
+  if(q.bookCall){box.innerHTML='<strong>What you may pay with competitors</strong><p class="small">District or multi-campus comparisons should be reviewed on a walkthrough.</p>';return;}
+  if(!q.students){box.innerHTML='<strong>What you may pay with competitors</strong><p class="small">Enter student enrollment to estimate what another digital hall pass might cost at $2.79/student.</p>';return;}
+  box.innerHTML='<strong>What you may pay with competitors</strong><p class="small">At a common digital hall pass rate of <b>$2.79/student</b>, your campus may pay:</p><div class="compNumber">'+money(q.competitorLicense)+'/year</div><div class="compLine"><span>HallPass license at $1.25/student</span><b>'+money(q.annualLicense)+'/year</b></div><div class="compLine savings"><span>Estimated license savings</span><b>'+money(q.licenseSavings)+'/year</b></div><p class="small">This comparison is not part of your HallPass quote. It is shown to help compare annual software cost.</p>';
 }
 
 function renderEstimate(showMessage){
