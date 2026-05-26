@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Get a HallPass Quote | Lone Star Teacher</title>
+  <meta name="description" content="Estimate HallPass pricing for your campus and request a walkthrough.">
+  <style>
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#fff7ed;line-height:1.6}.wrap{max-width:980px;margin:auto;padding:0 22px}.nav{background:white;border-bottom:1px solid #e5e7eb}.nav .wrap{height:70px;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:900;font-size:22px}.brand a{text-decoration:none;color:#111827}.hero{padding:58px 0 30px}.tag{display:inline-block;background:#ffedd5;color:#c2410c;border-radius:999px;padding:7px 12px;font-weight:900;margin-bottom:16px}h1{font-size:48px;line-height:1;letter-spacing:-2px;margin:0 0 14px}.lead{font-size:20px;color:#374151;max-width:760px}.grid{display:grid;grid-template-columns:1fr .85fr;gap:22px;align-items:start;padding:30px 0 70px}.card{background:white;border:1px solid #e5e7eb;border-radius:24px;padding:24px;box-shadow:0 14px 40px rgba(17,24,39,.09)}label{display:block;font-weight:800;margin:14px 0 6px}input,select,textarea{width:100%;border:1px solid #d1d5db;border-radius:14px;padding:12px 13px;font:inherit;background:white}textarea{min-height:96px}.btn{border:0;border-radius:999px;padding:13px 18px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-block}.orange{background:#f97316;color:white}.dark{background:#111827;color:white}.light{background:white;color:#111827;border:1px solid #e5e7eb}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.result{background:#111827;color:white;border-radius:22px;padding:22px;margin-top:16px}.result strong{font-size:36px;display:block;letter-spacing:-1px}.small{color:#4b5563;font-size:14px}.result .small{color:#e5e7eb}.notice{background:#ffedd5;color:#9a3412;border:1px solid #fed7aa;border-radius:14px;padding:12px;margin-top:14px;font-weight:700}.ok{background:#dcfce7;color:#166534;border-color:#bbf7d0}footer{background:#111827;color:white;padding:30px 0}footer a{color:white}@media(max-width:850px){.grid{grid-template-columns:1fr}h1{font-size:40px}}
+  </style>
+</head>
+<body>
+  <nav class="nav"><div class="wrap"><div class="brand"><a href="index.html">Lone Star Teacher</a></div><a class="btn light" href="index.html">Back to Home</a></div></nav>
+  <main>
+    <section class="hero"><div class="wrap"><div class="tag">HallPass campus estimate</div><h1>Get an estimated HallPass quote.</h1><p class="lead">Enter your campus information to see a preliminary annual estimate. This is not a formal contract; it helps start the right conversation.</p></div></section>
+    <section><div class="wrap grid">
+      <form class="card" id="quoteForm">
+        <h2>Campus information</h2>
+        <label for="name">Your name</label><input id="name" name="name" autocomplete="name" required>
+        <label for="email">School email</label><input id="email" name="email" type="email" autocomplete="email" required>
+        <label for="district">District</label><input id="district" name="district" required>
+        <label for="campus">Campus</label><input id="campus" name="campus" required>
+        <label for="students">Approximate student enrollment</label><input id="students" name="students" type="number" min="1" step="1" required>
+        <label for="type">Campus type</label><select id="type" name="type"><option>High School</option><option>Middle School</option><option>Secondary / K-12</option><option>Elementary</option><option>District / Multi-Campus</option></select>
+        <label for="features">What matters most?</label><select id="features" name="features"><option>Student hall pass tracking</option><option>Teacher approval workflow</option><option>Admin dashboard and reports</option><option>Substitute PIN workflow</option><option>Medical exemptions</option><option>District/multi-campus setup</option></select>
+        <label for="notes">Questions or notes</label><textarea id="notes" name="notes" placeholder="Tell me anything helpful about your campus needs."></textarea>
+        <div class="actions"><button class="btn orange" type="submit">Calculate Estimate</button><button class="btn light" type="reset">Clear</button></div>
+        <div id="message" class="notice" style="display:none"></div>
+      </form>
+      <aside class="card">
+        <h2>Your estimate</h2>
+        <p class="small">The estimate will appear after you submit the form. Starter pricing can be adjusted before a formal quote.</p>
+        <div class="result" id="result"><span>Estimated annual price</span><strong>—</strong><p class="small">Complete the form to calculate.</p></div>
+        <h3>Current starter tiers</h3>
+        <p><strong>Small campus:</strong> under 750 students — about $1,500/year</p>
+        <p><strong>Medium campus:</strong> 750–1,799 students — about $2,500/year</p>
+        <p><strong>Large campus:</strong> 1,800+ students — about $3,500/year</p>
+        <p><strong>District/multi-campus:</strong> book a walkthrough.</p>
+        <div class="actions"><a class="btn dark" id="emailLink" href="mailto:adam@lonestarteacher.com">Email Adam</a><a class="btn light" id="bookLink" href="#">Book Walkthrough</a></div>
+      </aside>
+    </div></section>
+  </main>
+  <footer><div class="wrap"><strong>Lone Star Teacher</strong><br>Questions? <a href="mailto:adam@lonestarteacher.com">adam@lonestarteacher.com</a></div></footer>
+  <script>
+    const QUOTE_ENDPOINT = "#";
+    const BOOKING_LINK = "#";
+    function money(n){return "$" + n.toLocaleString() + "/year";}
+    function estimate(students,type){if(type.includes("District"))return "Book Call";if(students<750)return 1500;if(students<1800)return 2500;return 3500;}
+    function formData(form){return Object.fromEntries(new FormData(form).entries());}
+    document.getElementById("bookLink").addEventListener("click",e=>{if(BOOKING_LINK==="#"){e.preventDefault();alert("Booking link has not been added yet.");}});
+    document.getElementById("quoteForm").addEventListener("submit",async e=>{
+      e.preventDefault();
+      const form=e.currentTarget; const data=formData(form); data.students=Number(data.students||0); data.estimate=estimate(data.students,data.type); data.timestamp=new Date().toISOString();
+      const priceText=typeof data.estimate==="number"?money(data.estimate):data.estimate;
+      document.getElementById("result").innerHTML="<span>Estimated annual price</span><strong>"+priceText+"</strong><p class='small'>This request is ready for follow-up. Formal pricing may change based on setup needs.</p>";
+      const subject=encodeURIComponent("HallPass quote request - "+data.campus);
+      const body=encodeURIComponent("Name: "+data.name+"\nEmail: "+data.email+"\nDistrict: "+data.district+"\nCampus: "+data.campus+"\nStudents: "+data.students+"\nCampus Type: "+data.type+"\nFeature Focus: "+data.features+"\nEstimate: "+priceText+"\nNotes: "+data.notes);
+      document.getElementById("emailLink").href="mailto:adam@lonestarteacher.com?subject="+subject+"&body="+body;
+      const msg=document.getElementById("message");
+      if(QUOTE_ENDPOINT==="#"){msg.className="notice";msg.style.display="block";msg.textContent="Estimate calculated. Next step: connect this form to the CRM quote endpoint so submissions write into Google Sheets automatically. For now, use the Email Adam button.";return;}
+      try{await fetch(QUOTE_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(data)});msg.className="notice ok";msg.style.display="block";msg.textContent="Quote request submitted. Adam will follow up.";}catch(err){msg.className="notice";msg.style.display="block";msg.textContent="The estimate was calculated, but submission failed. Please email Adam.";}
+    });
+  </script>
+</body>
+</html>
