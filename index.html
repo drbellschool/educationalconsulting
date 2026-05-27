@@ -27,7 +27,7 @@
       teacherDemo:"https://script.google.com/a/macros/lonestarteacher.com/s/AKfycbxyjnX4GkNNdQrUQr1saCuRf0VpS01ovO0ipyflPuc5f4BtiafMZFs5e9S47TZZOLh_qg/exec?demo=teacher",
       studentDemo:"https://script.google.com/a/macros/lonestarteacher.com/s/AKfycbxyjnX4GkNNdQrUQr1saCuRf0VpS01ovO0ipyflPuc5f4BtiafMZFs5e9S47TZZOLh_qg/exec?demo=student",
       quote:"https://www.lonestarteacher.com/quote-live.html",
-      booking:"https://www.lonestarteacher.com/quote-live.html"
+      booking:"https://calendar.app.google/VDcRL9NfTkvuqwR89"
     };
     document.querySelectorAll('[data-link]').forEach(el=>{const u=LINKS[el.dataset.link];if(u&&u!=='#'){el.href=u;el.target='_blank';el.rel='noopener'}else{el.addEventListener('click',e=>{e.preventDefault();document.getElementById('warning').style.display='block';document.getElementById('warning').scrollIntoView({behavior:'smooth',block:'center'});});}});
   </script>
