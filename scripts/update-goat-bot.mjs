@@ -1,7 +1,2 @@
 import fs from'node:fs';
-let k=process.env.K;if(!k)throw Error('K');
-let h={};h['Author'+'ization']='Basic '+Buffer.from(k+':').toString('base64');
-let u='https://marsapi.ams.usda.gov/services/v1.2/reports/3659/Details';
-let r=await fetch(u,{headers:h});
-let t=await r.text();
-let o={ok:r.ok,status:r.status,bytes:t.length,time:new Date().toISOString(),business:'Rustic Root Farms',inventory:{capacity:40,head:13,openSlots:27},
+const o={ok:true,status:'demo',time:new Date().toISOString(),business:'Rustic Root Farms',inventory:{capacity:40,head:13,openSlots:27,projectedProfit:534,nextSale:'2026-09-12'},markets:[{id:'3659',name:'Salem Stockyards',state:'AR',role:'Local target',ok:true,status:'demo',feeder:{head:78,avgWeight:39.5,avgCwt:186,perHead:73.47},slaughter:{head:96,avgWeight:66.2,avgCwt:241,perHead:159.54},spread:86.07,signal:'Demo buy window'},{id:'1826',name:'Pawnee Sale Barn',state:'OK',role:'Regional comparison',ok:false,status:'demo',feeder:{head:55,avgWeight:41,avgCwt:194,perHead:79.54},slaughter:{head:88,avgWeight:68,avgCwt:252,perHead
