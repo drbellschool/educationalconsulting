@@ -1,8 +1,35 @@
 import fs from'node:fs';
 let k=process.env.K;if(!k)throw Error('K');
-let old={};try{old=JSON.parse(fs.readFileSync('goat/data/goat-bot.json','utf8'))}catch{}
 let h={};h['Author'+'ization']='Basic '+Buffer.from(k+':').toString('base64');
-let base='https://marsapi.ams.usda.gov/services/v1.2/reports/';
-let defs=[['3659','Salem Stockyards','AR'],['1826','Pawnee Sale Barn','OK'],['2014','San Angelo','TX']];
-let markets=[];
-for(let x of defs){let r=await fetch(base+x[0]+'/Details
+let u='https://marsapi.ams.usda.gov/services/v1.2/reports/3659/Details';
+let r=await fetch(u,{headers:h});
+let t=await r.text();
+let o={
+  ok:r.ok,
+  status:r.status,
+  bytes:t.length,
+  time:new Date().toISOString(),
+  markets:[
+    {
+      id:'3659',
+      name:'Salem Stockyards',
+      state:'AR',
+      ok:r.ok,
+      status:r.status,
+      bytes:t.length,
+      role:'Local target'
+    }
+  ],
+  watchlist:[
+    {
+      state:'LA',
+      name:'Louisiana market',
+      status:'Need reliable USDA goat report'
+    }
+  ],
+  inventory:{
+    capacity:40,
+    head:0
+  }
+};
+fs.writeFileSync('goat/data/goat-bot.json',JSON.stringify(o));
