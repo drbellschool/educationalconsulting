@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "generatedAt": null,
+  "status": "Waiting for first USDA refresh",
+  "recommendation": "Add the USDA_API_KEY repository secret, then run the Goat Bot Data Refresh workflow.",
+  "markets": [],
+  "capitalPlan": {
+    "startingCapital": 500,
+    "targetCapital": 10000,
+    "currentCapital": 500
+  },
+  "assumptions": {
+    "feedCostPerHeadPerDay": 0.35,
+    "expectedGainLbPerDay": 0.25,
+    "mortalityReservePct": 3,
+    "haulingCostPerRoundTrip": 40,
+    "buyFeePct": 2,
+    "sellFeePct": 
