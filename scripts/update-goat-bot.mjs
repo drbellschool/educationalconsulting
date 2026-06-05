@@ -1,9 +1,7 @@
 import fs from'node:fs';
-const k=process.env.K;if(!k)throw Error('Missing K');
-const h={};h['Author'+'ization']='Basic '+Buffer.from(k+':').toString('base64');
-const m={id:'3659',name:'Salem Stockyards',state:'AR',role:'Local target'};
-const u='https://marsapi.ams.usda.gov/services/v1.2/reports/3659/Details?lastDays=60';
-const r=await fetch(u,{headers:h});
-const txt=await r.text();
-let j;try{j=JSON.parse(txt)}catch{j=null}
-function objs(x,a=[]){if(!x)return a;if(Array.isArray(x)){x.forEach(y=>objs
+let k=process.env.K;if(!k)throw Error('K');
+let h={};h['Author'+'ization']='Basic '+Buffer.from(k+':').toString('base64');
+let u='https://marsapi.ams.usda.gov/services/v1.2/reports/3659/Details';
+let r=await fetch(u,{headers:h});
+let t=await r.text();
+let o={ok:r.ok,status:r.status,bytes:t.length,time:new Date().toISOString(),business:'Rustic Root Farms',inventory:{capacity:40,head:13,openSlots:27},
