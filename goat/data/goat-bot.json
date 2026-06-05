@@ -1,1 +1,1 @@
-{"ok":true,"status":200,"bytes":306813,"time":"2026-06-05T12:05:16.132Z"}
+{"ok":true,"status":200,"bytes":13006790,"time":"2026-06-05T12:31:03.139Z","markets":[{"id":"3659","name":"Salem Stockyards","state":"AR","ok":true,"status":200,"bytes":13006790,"role":"Local target"}],"watchlist":[{"state":"LA","name":"Louisiana market","status":"Need reliable USDA goat report"}],"inventory":{"capacity":40,"head":0}}
