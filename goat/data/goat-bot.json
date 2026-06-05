@@ -13,6 +13,4 @@
     "feedCostPerHeadPerDay": 0.35,
     "expectedGainLbPerDay": 0.25,
     "mortalityReservePct": 3,
-    "haulingCostPerRoundTrip": 40,
-    "buyFeePct": 2,
-    "sellFeePct": 
+    "ha
