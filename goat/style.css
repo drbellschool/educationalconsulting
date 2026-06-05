@@ -1,0 +1,1 @@
+body{margin:0;background:#07110d;color:white;font-family:Arial}#app,.shell{max-width:1100px;margin:auto;padding:28px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.card{background:#10251c;border:1px solid #244232;border-radius:20px;padding:18px}.big{font-size:32px;font-weight:900}.good{color:#22c55e}.warn{color:#fbbf24}.bad{color:#ef4444}
