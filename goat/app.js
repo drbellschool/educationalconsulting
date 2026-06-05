@@ -1,4 +1,4 @@
 const e=document.getElementById('app');
+function add(t,b,p){let d=document.createElement('div');d.className='card';let h=document.createElement('h3');h.textContent=t;let x=document.createElement('div');x.className='big';x.textContent=b;let q=document.createElement('p');q.textContent=p;d.append(h,x,q);return d}
 fetch('data/goat-bot.json?x='+Date.now()).then(r=>r.json()).then(d=>{
-const i=d.inventory||{};e.className='shell';e.textContent='Goat Bot LIVE | API '+d.status+' | '+d.bytes+' bytes | Inventory '+(i.head||0)+'/'+(i.capacity||40)+' | '+d.time;
-}).catch(()=>e.textContent='Goat Bot data error');
+ e.textContent='';e.className='shell';let h=document.createElement('h1');h.textContent='Goat Bot';
