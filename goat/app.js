@@ -1,1 +1,6 @@
-fetch('data/goat-bot.json?v='+Date.now()).then(r=>r.json()).then(d=>{let f=n=>n?Number(n).toLocaleString():'--',i=d.inventory||{head:0,capacity:40},m=d.markets||[],w=d.watchlist||[];app.className='shell';app.innerHTML='<h1>Goat Bot</h1><p class=good>USDA regional market command center</p><div class=card><b>Status</b><p>Mode: '+(d.ok?'LIVE':'WATCH')+' | API: '+(d.status||'--')+' | Bytes: '+f(d.bytes)+' | Refresh: '+(d.time?new Date(d.time).to
+fetch('data/goat-bot.json').then(function(r){return r.json()}).then(function(d){
+var inv=d.inventory||{};
+var markets=d.markets||[];
+var watch=d.watchlist||[];
+app.className='shell';
+app.innerHTML='<h1>Goat Bot</h1><div class="card"><h3>Status</h3><div class="big">'+(d.ok?'LIVE':'WATCH')+' '+(d.status||'')+'</div><p>Bytes: '+(d.bytes||'--')+'</p></div><div class="grid"><div class="card"><h3>Markets</h3><div class
