@@ -1,4 +1,1 @@
-const a=document.getElementById('app');
-const el=(x,c)=>{let e=document.createElement('div');e.className=c||'';e.textContent=x;return e};
-const card=(t,v)=>{let d=el('', 'card');d.append(el(t,'muted'),el(v,'big'));return d};
-fetch('data/goat-bot.json?v='+Date.now()).then(r=>r.json()).then(d=>{let i=d.inventory||{};a.textContent='';a.className='shell';let top=el('', 'top');let h=el('', '');h.append(el('Goat Bot','title'),el('USDA regional market dashboard','mut
+fetch('data/goat-bot.json?v='+Date.now()).then(r=>r.json()).then(d=>{let i=d.inventory||{},a=document.getElementById('app');a.className='shell';a.innerHTML='<h1>Goat Bot</h1><p class=muted>USDA regional market dashboard</p><div class=grid><div class=card>Status<div class=big>'+(d.ok?'LIVE':'WATCH')+'</div></div><div class=card>API<div class=big>'+d.status+'</div></div><div class=card>Data<div class=big>'+d.bytes+'</div></div><div class=card>Inventory<div class=big>'+(i.head||0)+'/'+(i.capacity||40)+'</div></div
