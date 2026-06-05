@@ -1,2 +1,1 @@
-import fs from'node:fs';
-fs.writeFileSync('goat/data/goat-bot.json',JSON.stringify({ok:true,status:'demo',time:new Date().toISOString(),business:'Rustic Root Farms',inventory:{capacity:40,head:13,openSlots:27,projectedProfit:534,nextSale:'2026-09-12'},markets:[{id:'3659',name:'Salem Stockyards',state:'AR',role:'Local target',status:'demo',feeder:{head:78,avgWeight:39.5,avgCwt:186,perHead:73.47},slaughter:{head:96,avgWeight:66.2,avgCwt:241,perHead:159.54},spread:86.
+console.log('Goat Bot refresh disabled until parser is restored.');
