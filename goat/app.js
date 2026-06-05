@@ -1,21 +1,45 @@
 const DATA_URL = 'data/goat-bot.json?v=' + Date.now();
-const STORE_KEY = 'goatBotInventoryV1';
+const STORE_KEY = 'rrfGoatInventoryV2';
+
+function $(id) {
+  return document.getElementById(id);
+}
 
 function money(n) {
   n = Number(n || 0);
   return '$' + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
-function fmt(n) {
-  n = Number(n || 0);
-  return n.toLocaleString();
+function num(n) {
+  return Number(n || 0).toLocaleString();
 }
 
 function dateText(v) {
   if (!v) return '--';
   const d = new Date(v);
-  if (isNaN(d)) return String(v);
-  return d.toLocaleString();
+  return isNaN(d) ? String(v) : d.toLocaleString();
+}
+
+function loadLocalInventory() {
+  try {
+    return JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalInventory(items) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(items));
+}
+
+function baseInventory(data) {
+  const local = loadLocalInventory();
+  if (local.length) return local;
+  return data.inventoryRows || [];
+}
+
+function daysBetween(a, b) {
+  return Math.ceil((new Date(b) - new Date(a)) / 86400000);
 }
 
 function addDays(date, days) {
@@ -24,29 +48,11 @@ function addDays(date, days) {
   return d;
 }
 
-function daysBetween(a, b) {
-  const one = new Date(a);
-  const two = new Date(b);
-  return Math.ceil((two - one) / 86400000);
-}
-
-function loadInventory() {
-  try {
-    return JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function saveInventory(items) {
-  localStorage.setItem(STORE_KEY, JSON.stringify(items));
-}
-
 function goatPlan(g) {
   const buyWeight = Number(g.buyWeight || 0);
   const targetWeight = Number(g.targetWeight || buyWeight);
-  const gain = Number(g.gain || .25);
-  const feed = Number(g.feed || .35);
+  const gain = Number(g.gain || 0.25);
+  const feed = Number(g.feed || 0.35);
   const buyPrice = Number(g.buyPrice || 0);
   const salePrice = Number(g.salePrice || 0);
 
@@ -64,45 +70,76 @@ function goatPlan(g) {
   return { holdDays, targetDate, feedCost, profit, daysLeft, status };
 }
 
-function card(title, value, small) {
+function totalProjectedProfit(items) {
+  return items.reduce((sum, g) => sum + goatPlan(g).profit, 0);
+}
+
+function openModal(title, body) {
+  $('modalRoot').innerHTML = `
+    <div class="modalShade" onclick="closeModal(event)">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modalHeader">
+          <div>
+            <h2>${title}</h2>
+          </div>
+          <button class="closeBtn" onclick="closeModal()">Close</button>
+        </div>
+        ${body}
+      </div>
+    </div>
+  `;
+}
+
+function closeModal(e) {
+  if (e && e.target.className !== 'modalShade') return;
+  $('modalRoot').innerHTML = '';
+}
+
+window.closeModal = closeModal;
+
+function kpi(title, value, sub, action) {
   return `
-    <div class="kpi">
+    <div class="card clickCard" onclick="${action || ''}">
       <div class="label">${title}</div>
       <div class="big">${value}</div>
-      <div class="note">${small || ''}</div>
+      <div class="sub">${sub || ''}</div>
     </div>
   `;
 }
 
 function marketCard(m) {
+  const feeder = m.feeder || {};
+  const slaughter = m.slaughter || {};
+  const spread = m.spread ?? null;
+
   return `
-    <div class="market">
+    <div class="marketCard clickCard" onclick="showMarket('${m.id}')">
       <div class="marketName">${m.name || 'Market'}</div>
-      <div class="marketMeta">${m.state || '--'} · Report ${m.id || '--'} · ${m.role || 'Market'}</div>
-      <div class="metricRow"><span>USDA Status</span><strong>${m.status || '--'}</strong></div>
-      <div class="metricRow"><span>Connection</span><strong class="${m.ok ? 'good' : 'badText'}">${m.ok ? 'LIVE' : 'WATCH'}</strong></div>
-      <div class="metricRow"><span>Data Pulled</span><strong>${fmt(m.bytes)} bytes</strong></div>
-      <div class="metricRow"><span>Signal</span><strong class="warnText">Collecting</strong></div>
+      <div class="marketMeta">${m.state || '--'} · Report ${m.id || '--'} · ${m.role || ''}</div>
+      <div class="row"><span>Status</span><strong class="${m.ok ? 'good' : 'warnText'}">${m.ok ? 'Live' : 'Watch'}</strong></div>
+      <div class="row"><span>Feeder</span><strong>${feeder.perHead ? money(feeder.perHead) : '--'}</strong></div>
+      <div class="row"><span>Slaughter</span><strong>${slaughter.perHead ? money(slaughter.perHead) : '--'}</strong></div>
+      <div class="row"><span>Spread</span><strong class="${spread > 45 ? 'good' : 'warnText'}">${spread === null ? '--' : money(spread)}</strong></div>
     </div>
   `;
 }
 
-function renderInventoryRows(items) {
+function inventoryRows(items) {
   if (!items.length) {
-    return `<tr><td colspan="9" class="note">No goats entered yet. Add your first purchase below.</td></tr>`;
+    return `<tr><td colspan="8" class="helpText">No goats entered yet.</td></tr>`;
   }
 
   return items.map((g, i) => {
     const p = goatPlan(g);
     const cls = p.status === 'SELL NOW' ? 'badText' : p.status === 'SELL SOON' ? 'warnText' : 'good';
+
     return `
       <tr>
-        <td>${g.tag}</td>
-        <td>${g.buyDate}</td>
-        <td>${g.market}</td>
-        <td>${g.buyWeight} lb</td>
+        <td>${g.tag || 'Batch'}</td>
+        <td>${g.market || '--'}</td>
+        <td>${g.buyWeight || '--'} lb</td>
         <td>${money(g.buyPrice)}</td>
-        <td>${g.targetWeight} lb</td>
+        <td>${g.targetWeight || '--'} lb</td>
         <td>${p.targetDate.toLocaleDateString()}</td>
         <td class="${cls}">${p.status}</td>
         <td>${money(p.profit)}</td>
@@ -113,154 +150,177 @@ function renderInventoryRows(items) {
 }
 
 function render(data) {
-  const app = document.getElementById('app');
-  const inventory = loadInventory();
-  const capacity = data.inventory?.capacity || 40;
-  const markets = data.markets || [];
-  const watch = data.watchlist || [];
-  const head = inventory.length;
-  const remaining = Math.max(0, capacity - head);
+  window.goatData = data;
 
-  app.className = 'shell';
-  app.innerHTML = `
-    <section class="hero">
-      <div>
-        <h1>Goat Bot Market Strategy</h1>
-        <p class="subtitle">Regional USDA market dashboard, goat inventory planner, and profit forecast.</p>
+  const items = baseInventory(data);
+  const capacity = data.inventory?.capacity || 40;
+  const head = items.length || data.inventory?.head || 0;
+  const openSlots = Math.max(0, capacity - head);
+  const projectedProfit = totalProjectedProfit(items) || data.inventory?.projectedProfit || 0;
+  const markets = data.markets || [];
+  const decision = data.decision || {};
+
+  $('app').className = 'shell';
+  $('app').innerHTML = `
+    <section class="topbar">
+      <div class="brand">
+        <h1>Rustic Root Farms Goat Bot</h1>
+        <p>Goat trading dashboard for inventory, market spreads, and sale timing.</p>
       </div>
 
-      <div class="statusBox">
-        <span class="badge ${data.ok ? '' : 'warn'}">${data.ok ? 'USDA LIVE' : 'WATCH MODE'}</span>
-        <div class="statusGrid">
-          <div><div class="tinyLabel">API</div><div class="tinyValue">${data.status || '--'}</div></div>
-          <div><div class="tinyLabel">Last Refresh</div><div class="tinyValue">${dateText(data.time)}</div></div>
-          <div><div class="tinyLabel">Bytes</div><div class="tinyValue">${fmt(data.bytes)}</div></div>
-          <div><div class="tinyLabel">Markets</div><div class="tinyValue">${markets.length}</div></div>
-        </div>
+      <div class="statusPill ${data.ok ? '' : 'watch'}">
+        ${data.ok ? 'USDA LIVE' : 'WATCH MODE'} · API ${data.status || '--'}
       </div>
     </section>
 
-    <section class="layout">
-      <aside class="sidebar">
-        <h3>Strategy Filters</h3>
+    <section class="grid kpiGrid">
+      ${kpi('Farm Status', decision.headline || 'Hold and collect', decision.summary || 'Monitoring goat inventory and market spread.', 'showDecision()')}
+      ${kpi('Inventory', head + '/' + capacity, openSlots + ' spaces open', 'showInventory()')}
+      ${kpi('Projected Profit', money(projectedProfit), 'Modeled from current goat plans', 'showInventory()')}
+      ${kpi('Best Market', decision.bestMarket || 'Salem baseline', 'Click for market board', 'showMarkets()')}
+    </section>
 
-        <div class="field">
-          <label>Starting Capital</label>
-          <input value="$500" readonly>
+    <section class="grid mainGrid">
+      <div class="card">
+        <div class="cardTitle">
+          <h2>Regional Market Board</h2>
+          <span class="badge">Click market</span>
         </div>
-
-        <div class="field">
-          <label>Property Capacity</label>
-          <input value="${head}/${capacity} goats" readonly>
+        <div class="marketGrid">
+          ${markets.map(marketCard).join('') || '<p class="helpText">No market data yet.</p>'}
         </div>
+      </div>
 
-        <div class="field">
-          <label>Preferred Local Market</label>
-          <select>
-            <option>Salem, AR</option>
-            <option>Pawnee, OK</option>
-            <option>San Angelo, TX Benchmark</option>
-          </select>
+      <div class="card clickCard" onclick="showDecision()">
+        <div class="cardTitle">
+          <h2>Today’s Decision</h2>
+          <span class="badge warn">No overbuying</span>
         </div>
+        <div class="decision">${decision.headline || 'WATCH'}</div>
+        <p class="helpText">${decision.summary || 'Goat Bot is collecting market and inventory data before issuing a buy signal.'}</p>
+        <div class="row"><span>Last Refresh</span><strong>${dateText(data.time)}</strong></div>
+        <div class="row"><span>Data Mode</span><strong>${data.mode || 'Live / demo mix'}</strong></div>
+      </div>
+    </section>
 
-        <div class="field">
-          <label>Decision Mode</label>
-          <select>
-            <option>Conservative</option>
-            <option>Growth</option>
-            <option>Do Not Overbuy</option>
-          </select>
+    <section class="grid threeGrid">
+      <div class="card clickCard" onclick="showInventory()">
+        <div class="cardTitle">
+          <h3>Active Goat Plans</h3>
+          <span class="badge">${head} head</span>
         </div>
-
-        <p class="note">Only official USDA data should drive buy/sell signals. Tiny lots and unreliable reports should stay in watch mode.</p>
-      </aside>
-
-      <div>
-        <div class="kpis">
-          ${card('Bot Signal', 'WATCH', 'Parser is collecting market data before issuing buy signals.')}
-          ${card('Inventory', head + '/' + capacity, remaining + ' spaces open')}
-          ${card('Live Markets', markets.length, 'Reliable reports only')}
-          ${card('Data Pull', fmt(data.bytes), 'Latest USDA response size')}
+        <div class="miniList">
+          ${items.slice(0, 5).map(g => {
+            const p = goatPlan(g);
+            return `<div class="miniItem"><strong>${g.tag}</strong> · ${p.status}<br><span class="helpText">Target ${g.targetWeight} lb · ${money(p.profit)} projected</span></div>`;
+          }).join('')}
         </div>
+        <div class="actions">
+          <button class="btn" onclick="event.stopPropagation(); showAddGoat()">Add Goat / Batch</button>
+        </div>
+      </div>
 
-        <section class="grid2">
-          <div class="card">
-            <h2>Regional Market Board</h2>
-            <div class="marketGrid">
-              ${markets.map(marketCard).join('')}
-            </div>
-          </div>
+      <div class="card clickCard" onclick="showMarketRows()">
+        <div class="cardTitle">
+          <h3>Parsed Auction Rows</h3>
+          <span class="badge">${(data.marketRows || []).length} rows</span>
+        </div>
+        <p class="helpText">This is where the real USDA rows appear after the parser runs.</p>
+        <div class="row"><span>Live Source</span><strong>Salem first</strong></div>
+        <div class="row"><span>Next</span><strong>OK/TX parser</strong></div>
+      </div>
 
-          <div class="card">
-            <h2>Current Recommendation</h2>
-            <div class="decision">WATCH</div>
-            <p class="note">The pipe is live. Next build parses feeder and slaughter goat rows, compares markets, and calculates max bid.</p>
-          </div>
-        </section>
-
-        <section class="card">
-          <h2>Inventory Manager</h2>
-          <div class="tableWrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Tag</th><th>Buy Date</th><th>Market</th><th>Buy Wt</th><th>Buy Price</th><th>Target Wt</th><th>Target Date</th><th>Status</th><th>Projected Profit</th><th></th>
-                </tr>
-              </thead>
-              <tbody>${renderInventoryRows(inventory)}</tbody>
-            </table>
-          </div>
-
-          <h3 style="margin-top:18px;">Add Goat / Batch</h3>
-          <form id="goatForm" class="formGrid">
-            <input name="tag" placeholder="Tag or Batch ID" required>
-            <input name="buyDate" type="date" required>
-            <input name="market" placeholder="Buy Market" value="Salem, AR">
-            <input name="buyWeight" type="number" step="0.1" placeholder="Buy lb" required>
-            <input name="buyPrice" type="number" step="0.01" placeholder="Buy $/head" required>
-            <input name="targetWeight" type="number" step="0.1" placeholder="Target lb" value="65">
-            <input name="gain" type="number" step="0.01" placeholder="Gain/day" value="0.25">
-            <input name="feed" type="number" step="0.01" placeholder="Feed $/day" value="0.35">
-            <input name="salePrice" type="number" step="0.01" placeholder="Est sale $/head">
-            <select name="sellMarket">
-              <option>Salem, AR</option>
-              <option>Pawnee, OK</option>
-              <option>San Angelo, TX</option>
-            </select>
-            <button class="btn" type="submit">Add Plan</button>
-          </form>
-
-          <div class="actions">
-            <button class="btn secondary" onclick="clearInventory()">Clear Inventory</button>
-            <button class="btn secondary" onclick="exportInventory()">Export JSON</button>
-          </div>
-        </section>
-
-        <section class="grid2" style="margin-top:18px;">
-          <div class="card">
-            <h2>Sales Trend</h2>
-            <div class="canvasBox">Trend chart begins after market rows are parsed and stored over time.</div>
-          </div>
-
-          <div class="card">
-            <h2>Watchlist</h2>
-            ${watch.length ? watch.map(w => `
-              <div class="watchItem">
-                <strong>${w.state || '--'} · ${w.name || 'Market'}</strong>
-                <div class="note">${w.status || 'Watching for reliable USDA goat data.'}</div>
-              </div>
-            `).join('') : '<p class="note">No watchlist markets yet.</p>'}
-          </div>
-        </section>
+      <div class="card clickCard" onclick="showWatchlist()">
+        <div class="cardTitle">
+          <h3>Watchlist</h3>
+          <span class="badge warn">${(data.watchlist || []).length}</span>
+        </div>
+        <p class="helpText">Louisiana stays watch-only until we verify reliable USDA goat rows.</p>
       </div>
     </section>
   `;
+}
 
-  document.getElementById('goatForm').addEventListener('submit', e => {
+function showDecision() {
+  const d = window.goatData || {};
+  const decision = d.decision || {};
+  openModal('Rustic Root Farms Decision', `
+    <p class="helpText">${decision.summary || 'No decision summary yet.'}</p>
+    <div class="row"><span>Headline</span><strong>${decision.headline || 'WATCH'}</strong></div>
+    <div class="row"><span>Best Market</span><strong>${decision.bestMarket || '--'}</strong></div>
+    <div class="row"><span>Mode</span><strong>${d.mode || '--'}</strong></div>
+  `);
+}
+
+function showMarkets() {
+  const d = window.goatData || {};
+  openModal('Regional Market Board', `
+    <div class="marketGrid">
+      ${(d.markets || []).map(marketCard).join('')}
+    </div>
+  `);
+}
+
+function showMarket(id) {
+  const d = window.goatData || {};
+  const m = (d.markets || []).find(x => String(x.id) === String(id)) || {};
+  openModal(m.name || 'Market', `
+    <div class="row"><span>State</span><strong>${m.state || '--'}</strong></div>
+    <div class="row"><span>Report ID</span><strong>${m.id || '--'}</strong></div>
+    <div class="row"><span>Status</span><strong>${m.status || '--'}</strong></div>
+    <div class="row"><span>Rows Parsed</span><strong>${m.rows || '--'}</strong></div>
+    <div class="row"><span>Feeder Avg</span><strong>${m.feeder?.perHead ? money(m.feeder.perHead) : '--'}</strong></div>
+    <div class="row"><span>Slaughter Avg</span><strong>${m.slaughter?.perHead ? money(m.slaughter.perHead) : '--'}</strong></div>
+    <div class="row"><span>Spread</span><strong>${m.spread === null || m.spread === undefined ? '--' : money(m.spread)}</strong></div>
+    <p class="helpText">${m.signal || 'No signal yet.'}</p>
+  `);
+}
+
+function showInventory() {
+  const d = window.goatData || {};
+  const items = baseInventory(d);
+
+  openModal('Goat Inventory Plans', `
+    <div class="actions">
+      <button class="btn" onclick="showAddGoat()">Add Goat / Batch</button>
+      <button class="btn secondary" onclick="exportInventory()">Export</button>
+      <button class="btn danger" onclick="clearInventory()">Clear Local</button>
+    </div>
+    <div class="tableWrap" style="margin-top:12px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Tag</th><th>Market</th><th>Buy Wt</th><th>Buy Price</th><th>Target</th><th>Target Date</th><th>Status</th><th>Profit</th><th></th>
+          </tr>
+        </thead>
+        <tbody>${inventoryRows(items)}</tbody>
+      </table>
+    </div>
+  `);
+}
+
+function showAddGoat() {
+  openModal('Quick Add Goat / Batch', `
+    <form id="addGoatForm" class="formGrid">
+      <div class="field"><label>Tag / Batch</label><input name="tag" required placeholder="RR-14"></div>
+      <div class="field"><label>Buy Date</label><input name="buyDate" type="date" required></div>
+      <div class="field"><label>Buy Market</label><input name="market" value="Salem, AR"></div>
+      <div class="field"><label>Buy Weight</label><input name="buyWeight" type="number" step="0.1" required></div>
+      <div class="field"><label>Buy Price</label><input name="buyPrice" type="number" step="0.01" required></div>
+      <div class="field"><label>Target Weight</label><input name="targetWeight" type="number" step="0.1" value="65"></div>
+      <div class="field"><label>Est Sale Price</label><input name="salePrice" type="number" step="0.01"></div>
+      <div class="field"><label>Gain / Day</label><input name="gain" type="number" step="0.01" value="0.25"></div>
+      <div class="field"><label>Feed / Day</label><input name="feed" type="number" step="0.01" value="0.35"></div>
+      <button class="btn" type="submit">Save Plan</button>
+    </form>
+  `);
+
+  $('addGoatForm').addEventListener('submit', e => {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    const item = Object.fromEntries(fd.entries());
-    const current = loadInventory();
+    const item = Object.fromEntries(new FormData(e.target).entries());
+    const d = window.goatData || {};
+    const current = baseInventory(d).slice();
+    const capacity = d.inventory?.capacity || 40;
 
     if (current.length >= capacity) {
       alert('Capacity reached. Goat Bot will not plan over ' + capacity + ' goats.');
@@ -268,37 +328,99 @@ function render(data) {
     }
 
     current.push(item);
-    saveInventory(current);
-    render(data);
+    saveLocalInventory(current);
+    closeModal();
+    render(d);
   });
 }
 
-window.removeGoat = function(index) {
-  const items = loadInventory();
-  items.splice(index, 1);
-  saveInventory(items);
-  location.reload();
-};
+function showMarketRows() {
+  const d = window.goatData || {};
+  const rows = d.marketRows || [];
 
-window.clearInventory = function() {
-  if (!confirm('Clear inventory?')) return;
-  saveInventory([]);
-  location.reload();
-};
+  openModal('Parsed USDA Auction Rows', `
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Market</th><th>Category</th><th>Description</th><th>Head</th><th>Avg Wt</th><th>Avg CWT</th><th>$/Head</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.length ? rows.slice(0, 50).map(r => `
+            <tr>
+              <td>${r.market}</td>
+              <td>${r.category}</td>
+              <td>${r.description || ''}</td>
+              <td>${r.head || '--'}</td>
+              <td>${r.avgWeight || '--'}</td>
+              <td>${r.avgCwt ? money(r.avgCwt) : '--'}</td>
+              <td>${r.estimatedPerHead ? money(r.estimatedPerHead) : '--'}</td>
+            </tr>
+          `).join('') : '<tr><td colspan="7" class="helpText">No parsed rows yet. Run the parser workflow next.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `);
+}
 
-window.exportInventory = function() {
-  const blob = new Blob([JSON.stringify(loadInventory(), null, 2)], { type: 'application/json' });
+function showWatchlist() {
+  const d = window.goatData || {};
+  const watch = d.watchlist || [];
+  openModal('Market Watchlist', `
+    <div class="miniList">
+      ${watch.map(w => `<div class="miniItem"><strong>${w.state || '--'} · ${w.name || 'Market'}</strong><br><span class="helpText">${w.status || ''}</span></div>`).join('')}
+    </div>
+  `);
+}
+
+function removeGoat(index) {
+  const d = window.goatData || {};
+  const current = baseInventory(d).slice();
+  current.splice(index, 1);
+  saveLocalInventory(current);
+  render(d);
+  showInventory();
+}
+
+function clearInventory() {
+  if (!confirm('Clear local inventory?')) return;
+  saveLocalInventory([]);
+  closeModal();
+  render(window.goatData || {});
+}
+
+function exportInventory() {
+  const blob = new Blob([JSON.stringify(baseInventory(window.goatData || {}), null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'goat-inventory.json';
+  a.download = 'rustic-root-goat-inventory.json';
   a.click();
   URL.revokeObjectURL(url);
-};
+}
+
+window.showDecision = showDecision;
+window.showMarkets = showMarkets;
+window.showMarket = showMarket;
+window.showInventory = showInventory;
+window.showAddGoat = showAddGoat;
+window.showMarketRows = showMarketRows;
+window.showWatchlist = showWatchlist;
+window.removeGoat = removeGoat;
+window.clearInventory = clearInventory;
+window.exportInventory = exportInventory;
 
 fetch(DATA_URL)
   .then(r => r.json())
   .then(render)
   .catch(err => {
-    document.getElementById('app').innerHTML = `<div class="shell"><h1>Goat Bot</h1><p class="badText">Could not load data: ${err.message}</p></div>`;
+    $('app').innerHTML = `
+      <div class="shell">
+        <div class="card">
+          <h1>Goat Bot Error</h1>
+          <p class="badText">${err.message}</p>
+        </div>
+      </div>
+    `;
   });
