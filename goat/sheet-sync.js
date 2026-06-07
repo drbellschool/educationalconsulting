@@ -4,7 +4,7 @@
 // 3. The dashboard will use Google Sheets as source of truth and localStorage as offline fallback.
 
 window.GOAT_BOT_SHEET_ID = '1KZp48FXcTXRcidyNKtla0IgJDhz-z2ge0mAlYQv7yvg';
-window.GOAT_BOT_API_URL = ''; // Example: https://script.google.com/macros/s/AKfycb.../exec
+window.GOAT_BOT_API_URL = 'https://script.google.com/macros/s/AKfycbwieToeZ8LeTQXAN6zkmec4nQWcKR9NBrH4yA0oJwprwsRtMShPnMZsP1sP8RStPmkzfQ/exec'; // Example: https://script.google.com/macros/s/AKfycb.../exec
 
 async function goatBotFetchSheetSnapshot() {
   if (!window.GOAT_BOT_API_URL) return null;
