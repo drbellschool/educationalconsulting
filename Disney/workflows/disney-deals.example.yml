@@ -1,0 +1,38 @@
+name: Disney Bot Deal Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 12 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-disney-deals:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: Disney
+        run: npm install
+
+      - name: Refresh Disney deals
+        working-directory: Disney
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-4.1-mini
+        run: npm run refresh
+
+      - name: Commit Disney bot updates
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Refresh Disney bot deal data'
+          file_pattern: 'Disney/data/deals.json Disney/public/index.html'
