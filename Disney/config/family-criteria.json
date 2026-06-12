@@ -1,0 +1,35 @@
+{
+  "tripName": "Bell Family Disney World Watch",
+  "destination": "Walt Disney World, Orlando, Florida",
+  "familySize": 6,
+  "childrenAges": [14, 12, 4, 1],
+  "homeArea": "Texarkana / Genoa area",
+  "driveOption": true,
+  "flightAirports": ["DFW", "DAL", "TXK", "LIT", "SHV"],
+  "targetMonths": ["March", "May", "June", "July", "November", "December"],
+  "idealNights": 5,
+  "minimumNights": 4,
+  "maximumNights": 7,
+  "maxTotalBudget": 8500,
+  "preferredResortTypes": ["Value", "Moderate", "Family Suite"],
+  "mustHave": [
+    "Safe family-friendly hotel or resort",
+    "Works for a toddler and teenagers",
+    "Clear total price before booking",
+    "Reasonable travel schedule"
+  ],
+  "niceToHave": [
+    "Disney transportation",
+    "Free dining or dining promo",
+    "Lower crowd dates",
+    "Pool day",
+    "Character meal option"
+  ],
+  "dealScoreWeights": {
+    "price": 35,
+    "familyFit": 25,
+    "dateQuality": 15,
+    "travelConvenience": 15,
+    "confidence": 10
+  }
+}
