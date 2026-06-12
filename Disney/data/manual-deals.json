@@ -1,0 +1,12 @@
+{
+  "notes": "Add real deals here when you or Alissa find a price worth comparing. The refresh script can be expanded to merge these into the dashboard.",
+  "manualDeals": [
+    {
+      "title": "Example: Off-site hotel plus 2 park days",
+      "sourceUrl": "https://disneyworld.disney.go.com/",
+      "estimatedTotal": 2800,
+      "summary": "Example placeholder. Replace with a real deal when found.",
+      "status": "example-only"
+    }
+  ]
+}
