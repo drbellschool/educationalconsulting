@@ -1,24 +1,28 @@
-# Disney Vacation Deal Dashboard
+# Disney Vacation Bot
 
-This folder contains a lightweight family Disney World deal tracker.
+This folder is a separate Disney bot for the Bell family. It does not touch the existing homepage or the `goat` folder.
+
+## Current trip target
+
+- Family: Adam, beautiful wife, and four kids
+- Kids: ages 3, 6, 14, and 16
+- Destination: Walt Disney World, Orlando, Florida
+- Travel style: Drive
+- Trip length: About 4 days
+- Budget target: $2,000 to $3,000
+
+That budget means the bot should favor realistic options: off-site hotel, Good Neighbor hotel, limited park days, low-crowd windows, free breakfast, and deals that reduce tickets or lodging.
 
 ## What it does
 
-- Keeps your family trip criteria in `config/family-criteria.json`.
-- Runs small deal-checking agents from `src/dealAgents.js`.
-- Generates a static webpage at `public/index.html`.
-- Saves the latest recommendations to `data/deals.json`.
-- Can be refreshed by GitHub Actions with `.github/workflows/disney-deals.yml`.
-
-## Important note
-
-This is not a magic paid-travel-agent replacement. It is a structured watcher. It checks configured sources, scores deals against your family criteria, and gives you a clean webpage to review with Alissa.
-
-The safest sources are official or semi-official pages that allow public access. Avoid scraping sites that block bots or violate terms.
+- Stores family criteria in `config/family-criteria.json`.
+- Stores watched sources in `config/sources.json`.
+- Scores possible deals with `src/scoring.js`.
+- Uses `src/openaiPlanner.js` to connect to the OpenAI API when `OPENAI_API_KEY` is configured.
+- Generates `data/deals.json`.
+- Generates a simple webpage at `public/index.html`.
 
 ## Quick start
-
-From this repository:
 
 ```bash
 cd Disney
@@ -33,43 +37,36 @@ Then open:
 http://localhost:8787
 ```
 
-## GitHub Pages option
+## OpenAI agent setup
 
-If GitHub Pages is enabled for this repository, point it to the `Disney/public` folder or copy the generated `public/index.html` into the Pages path you use.
-
-## Default deal sources
-
-The starter configuration watches:
-
-- Walt Disney World special offers
-- Disney World tickets/special offers
-- Undercover Tourist Disney World tickets
-- Google Flights search link placeholder
-- Southwest search link placeholder
-
-The script creates recommendations, but it will not purchase anything or enter personal data.
-
-## Customize your family criteria
-
-Edit:
+Add this as an environment variable locally or as a GitHub Actions secret:
 
 ```text
-Disney/config/family-criteria.json
+OPENAI_API_KEY=your_key_here
 ```
 
-Suggested fields:
+Optional:
 
-- familySize
-- childrenAges
-- departureCity
-- targetMonths
-- maxTotalBudget
-- preferredResortTypes
-- mustHave
-- niceToHave
+```text
+OPENAI_MODEL=gpt-4.1-mini
+```
 
 ## Automation
 
-The included workflow is designed to run daily and update `Disney/data/deals.json` and `Disney/public/index.html`.
+I placed a workflow example here:
 
-You may need to enable Actions permissions in GitHub so the workflow can commit updates back to the repository.
+```text
+Disney/workflows/disney-deals.example.yml
+```
+
+To make it run automatically in GitHub Actions, copy that file to:
+
+```text
+.github/workflows/disney-deals.yml
+```
+
+I did not create that top-level workflow automatically because you asked for this to live in its own Disney folder and not disturb the rest of the repository.
+
+## Important note
+
+This bot watches and scores public deal sources. It does not buy anything, enter personal information, or scrape protected/private pages. Prices still need to be verified before booking.
