@@ -2,34 +2,44 @@
   "tripName": "Bell Family Disney World Watch",
   "destination": "Walt Disney World, Orlando, Florida",
   "familySize": 6,
-  "childrenAges": [14, 12, 4, 1],
+  "travelers": {
+    "adults": 2,
+    "children": 4,
+    "childrenAges": [3, 6, 14, 16]
+  },
   "homeArea": "Texarkana / Genoa area",
+  "travelMode": "drive",
   "driveOption": true,
   "flightAirports": ["DFW", "DAL", "TXK", "LIT", "SHV"],
-  "targetMonths": ["March", "May", "June", "July", "November", "December"],
-  "idealNights": 5,
-  "minimumNights": 4,
-  "maximumNights": 7,
-  "maxTotalBudget": 8500,
-  "preferredResortTypes": ["Value", "Moderate", "Family Suite"],
+  "targetMonths": ["January", "February", "May", "September", "November", "early December"],
+  "idealNights": 3,
+  "idealTripDays": 4,
+  "minimumNights": 2,
+  "maximumNights": 4,
+  "targetBudgetLow": 2000,
+  "targetBudgetHigh": 3000,
+  "maxTotalBudget": 3000,
+  "budgetStrategy": "Driving trip, off-site or value lodging, limited park days, and careful ticket selection. Disney resort packages are unlikely under this budget for six people unless there is an unusually strong promotion.",
+  "preferredResortTypes": ["Off-site value hotel", "Good Neighbor hotel", "Value resort if major promotion appears"],
   "mustHave": [
     "Safe family-friendly hotel or resort",
-    "Works for a toddler and teenagers",
+    "Works for a three-year-old, six-year-old, teenagers, and two adults",
     "Clear total price before booking",
-    "Reasonable travel schedule"
+    "Driving-friendly schedule",
+    "Total estimate close to 2000 to 3000 dollars"
   ],
   "niceToHave": [
-    "Disney transportation",
-    "Free dining or dining promo",
+    "Free breakfast",
+    "Shuttle to Disney parks",
     "Lower crowd dates",
     "Pool day",
-    "Character meal option"
+    "One character meal option if the budget survives"
   ],
   "dealScoreWeights": {
-    "price": 35,
+    "price": 45,
     "familyFit": 25,
-    "dateQuality": 15,
-    "travelConvenience": 15,
+    "dateQuality": 10,
+    "travelConvenience": 10,
     "confidence": 10
   }
 }
