@@ -1,0 +1,44 @@
+{
+  "sources": [
+    {
+      "id": "wdw-special-offers",
+      "name": "Walt Disney World Special Offers",
+      "type": "official-offers-page",
+      "url": "https://disneyworld.disney.go.com/special-offers/",
+      "priority": 1,
+      "notes": "Official Disney offers page. Best source for resort, ticket, and dining promotions."
+    },
+    {
+      "id": "wdw-tickets",
+      "name": "Walt Disney World Tickets",
+      "type": "official-ticket-page",
+      "url": "https://disneyworld.disney.go.com/admission/tickets/",
+      "priority": 2,
+      "notes": "Official Disney ticket page. Useful for baseline ticket pricing."
+    },
+    {
+      "id": "undercover-tourist",
+      "name": "Undercover Tourist Disney World Tickets",
+      "type": "ticket-reseller-page",
+      "url": "https://www.undercovertourist.com/orlando/walt-disney-world-resort/",
+      "priority": 3,
+      "notes": "Common third-party ticket source. Verify final price manually before buying."
+    },
+    {
+      "id": "google-flights-dfw-mco",
+      "name": "Google Flights DFW to Orlando",
+      "type": "manual-review-link",
+      "url": "https://www.google.com/travel/flights",
+      "priority": 4,
+      "notes": "Flight APIs usually require paid access. This bot stores the review link and can later connect to a flight API."
+    },
+    {
+      "id": "southwest",
+      "name": "Southwest Low Fare Calendar",
+      "type": "manual-review-link",
+      "url": "https://www.southwest.com/air/low-fare-calendar/",
+      "priority": 5,
+      "notes": "Southwest fares often require manual review or a compliant provider API."
+    }
+  ]
+}
