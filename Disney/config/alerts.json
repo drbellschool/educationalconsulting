@@ -1,0 +1,35 @@
+{
+  "enabled": true,
+  "channels": {
+    "dashboard": true,
+    "email": false,
+    "sms": false
+  },
+  "note": "Dashboard alerts are ready. Real SMS requires a provider such as Twilio, Google Voice automation, or another messaging API key. Do not commit private phone numbers or API keys to the repository.",
+  "rules": [
+    {
+      "id": "under-budget-trip",
+      "name": "Full trip estimate under budget",
+      "trigger": "estimatedTotal <= 3000",
+      "message": "Disney deal alert: a trip estimate is under $3,000. Verify before it disappears."
+    },
+    {
+      "id": "hotel-under-target",
+      "name": "Family hotel under lodging target",
+      "trigger": "lodgingTotal <= 900",
+      "message": "Disney lodging alert: a family-safe hotel option is under the lodging target."
+    },
+    {
+      "id": "ticket-drop",
+      "name": "Ticket price drop",
+      "trigger": "ticketTotal <= 1600",
+      "message": "Disney ticket alert: tickets may be low enough to make the trip work. Check now."
+    },
+    {
+      "id": "urgent-booking-window",
+      "name": "Strong deal score",
+      "trigger": "score >= 85",
+      "message": "Disney bot found a strong deal score. Review it today."
+    }
+  ]
+}
