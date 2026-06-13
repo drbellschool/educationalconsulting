@@ -3,35 +3,107 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bell Family Disney Bot</title>
+  <title>Bell Family Disney Command Center</title>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #111827; color: #f9fafb; }
-    main { max-width: 1100px; margin: auto; padding: 24px; }
-    .hero { background: linear-gradient(135deg, #1d4ed8, #7c3aed); border-radius: 24px; padding: 28px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 20px 0; }
-    .stat, .card { background: #1f2937; border: 1px solid #374151; border-radius: 18px; padding: 18px; }
-    a { color: #93c5fd; }
-    code { background: #0f172a; padding: 2px 5px; border-radius: 5px; }
+    :root{--bg:#07111f;--panel:#101b2d;--panel2:#162238;--line:#263856;--text:#f8fafc;--muted:#b6c4d8;--gold:#fbbf24;--blue:#60a5fa;--green:#34d399;--red:#fb7185;--purple:#a78bfa}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,#1d4ed8 0,transparent 28%),var(--bg);color:var(--text)}main{width:min(1180px,94vw);margin:auto;padding:22px 0 50px}.hero{display:grid;grid-template-columns:1.4fr .8fr;gap:18px;align-items:stretch}.hero-card,.card{background:rgba(16,27,45,.94);border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.hero-card{background:linear-gradient(135deg,rgba(37,99,235,.95),rgba(124,58,237,.9))}h1{font-size:clamp(34px,5vw,62px);line-height:.98;margin:0 0 12px}h2{margin:0 0 14px;font-size:22px}h3{margin:0 0 8px;font-size:17px}p{color:var(--muted);line-height:1.45}.hero-card p{color:#eef4ff;font-size:17px}.badge-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.badge{border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.12);padding:8px 10px;border-radius:999px;font-weight:700}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}.metric{background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:16px}.metric .num{font-size:30px;font-weight:900;color:white}.metric .label{color:var(--muted);font-size:13px}.bar{height:13px;background:#0b1322;border-radius:999px;border:1px solid var(--line);overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));width:var(--w)}.rings{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.ring{--p:50;background:conic-gradient(var(--c) calc(var(--p)*1%),#0b1322 0);border-radius:50%;width:120px;height:120px;display:grid;place-items:center;margin:auto}.ring-inner{width:88px;height:88px;background:var(--panel);border-radius:50%;display:grid;place-items:center;text-align:center;border:1px solid var(--line)}.ring-inner strong{font-size:22px}.phase{display:grid;grid-template-columns:36px 1fr auto;gap:12px;padding:13px;border:1px solid var(--line);border-radius:16px;background:#0c1728;margin:10px 0;align-items:center}.dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:900;background:var(--line)}.done .dot{background:var(--green);color:#052e22}.active .dot{background:var(--gold);color:#3b2500}.later .dot{background:#334155}.status{font-weight:900;font-size:13px;padding:6px 9px;border-radius:999px;background:#0b1322;color:var(--muted)}.active .status{color:var(--gold)}.done .status{color:var(--green)}table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:16px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);color:var(--muted);vertical-align:top}th{color:white;background:#0c1728}td strong{color:white}.deal{border:1px solid var(--line);background:#0c1728;border-radius:16px;padding:14px;margin:10px 0;display:grid;grid-template-columns:72px 1fr;gap:14px}.score{width:60px;height:60px;border-radius:19px;background:linear-gradient(135deg,var(--gold),#f97316);color:#111827;display:grid;place-items:center;font-weight:900;font-size:24px}.button-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}a.btn,button.btn{text-decoration:none;color:white;border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:11px 13px;background:rgba(255,255,255,.1);font-weight:800;cursor:pointer}.btn.primary{background:var(--gold);color:#111827;border:none}.warning{border-left:5px solid var(--gold)}.green{color:var(--green)}.gold{color:var(--gold)}.red{color:var(--red)}.small{font-size:13px;color:var(--muted)}.checklist li{margin:9px 0;color:var(--muted)}.checklist strong{color:white}.calc{display:grid;grid-template-columns:1fr 1fr;gap:10px}.calc label{font-size:13px;color:var(--muted)}.calc input{width:100%;margin-top:5px;background:#0b1322;color:white;border:1px solid var(--line);border-radius:12px;padding:10px}.alert{background:#0c1728;border:1px solid var(--line);border-radius:16px;padding:13px;margin:10px 0}.alert strong{color:white}@media(max-width:900px){.hero,.two,.three,.grid,.rings,.calc{grid-template-columns:1fr}.ring{width:108px;height:108px}.ring-inner{width:78px;height:78px}}
   </style>
 </head>
 <body>
-  <main>
-    <section class="hero">
-      <h1>Bell Family Disney Bot</h1>
-      <p>Driving-trip deal watcher for Walt Disney World. Target budget: $2,000–$3,000.</p>
-      <p>This page lives at <code>/Disney/</code>. The bot-generated version also writes to <code>Disney/public/index.html</code>.</p>
-    </section>
-    <section class="grid">
-      <div class="stat"><h3>Family</h3><p>2 adults + children ages 3, 6, 14, and 16.</p></div>
-      <div class="stat"><h3>Trip</h3><p>Drive to Orlando. About four days.</p></div>
-      <div class="stat"><h3>Budget</h3><p>$2,000–$3,000.</p></div>
-      <div class="stat"><h3>Strategy</h3><p>Off-site/value hotel, limited park days, low-crowd dates.</p></div>
-    </section>
-    <section class="card">
-      <h2>Bot Status</h2>
-      <p>The Disney bot folder is installed. The GitHub Action can refresh recommendations and write updated deal data.</p>
-      <p><a href="public/index.html">Open generated dashboard version</a></p>
-    </section>
-  </main>
+<main>
+  <section class="hero">
+    <div class="hero-card">
+      <h1>Disney Trip Command Center</h1>
+      <p>The Bell family mission board: countdown, budget calculator, progress rings, deal watch, alerts, and next moves for making Disney World happen without wrecking the bank account.</p>
+      <div class="badge-row"><span class="badge">Family of 6</span><span class="badge">Drive to Orlando</span><span class="badge">4-day target</span><span class="badge">$2K–$3K goal</span></div>
+    </div>
+    <div class="card warning">
+      <h2>Countdown</h2>
+      <p class="small">Set a target date below. This saves on this phone/browser.</p>
+      <div class="calc"><label>Target departure date<input id="tripDate" type="date"></label><label>Saved so far<input id="savedAmount" type="number" value="0" min="0"></label></div>
+      <h1 id="countdown" style="font-size:42px;margin-top:14px">Pick a date</h1>
+      <div class="bar"><div id="savingsBar" class="fill" style="--w:0%"></div></div>
+      <p id="savingsText" class="small">Savings progress: $0 of $3,000</p>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="metric"><div class="label">Target Budget</div><div class="num">$3,000</div><p class="small">Hard ceiling for the bot.</p></div>
+    <div class="metric"><div class="label">Estimated Reality</div><div class="num">$3.2K–$4.8K</div><p class="small">If tickets and lodging are not controlled.</p></div>
+    <div class="metric"><div class="label">Best Park Days</div><div class="num">1–2</div><p class="small">This is where the budget survives.</p></div>
+    <div class="metric"><div class="label">Trip Readiness</div><div class="num" id="readinessNum">38%</div><div class="bar"><div id="readinessBar" class="fill" style="--w:38%"></div></div></div>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <h2>Progress Rings</h2>
+    <div class="rings">
+      <div><div class="ring" style="--p:100;--c:var(--green)"><div class="ring-inner"><strong>100%</strong><span class="small">Criteria</span></div></div></div>
+      <div><div class="ring" id="budgetRing" style="--p:0;--c:var(--gold)"><div class="ring-inner"><strong id="budgetPct">0%</strong><span class="small">Budget</span></div></div></div>
+      <div><div class="ring" style="--p:45;--c:var(--blue)"><div class="ring-inner"><strong>45%</strong><span class="small">Deals</span></div></div></div>
+      <div><div class="ring" style="--p:25;--c:var(--purple)"><div class="ring-inner"><strong>25%</strong><span class="small">Booking</span></div></div></div>
+    </div>
+  </section>
+
+  <section class="two">
+    <div class="card">
+      <h2>Live Budget Calculator</h2>
+      <div class="calc">
+        <label>Gas / driving<input id="gas" type="number" value="650"></label>
+        <label>Lodging<input id="lodging" type="number" value="750"></label>
+        <label>Tickets<input id="tickets" type="number" value="1800"></label>
+        <label>Food<input id="food" type="number" value="650"></label>
+        <label>Parking / stroller / extras<input id="extras" type="number" value="350"></label>
+        <label>Budget ceiling<input id="budget" type="number" value="3000"></label>
+      </div>
+      <h1 id="totalCost" style="font-size:40px;margin-top:16px">$4,200</h1>
+      <p id="budgetVerdict" class="red"><strong>Over budget.</strong> Cut ticket days, lodging, or food plan.</p>
+    </div>
+
+    <div class="card">
+      <h2>Trip Order of Operations</h2>
+      <div class="phase done"><div class="dot">✓</div><div><strong>Criteria set</strong><br><span class="small">Family, ages, driving, budget.</span></div><span class="status">DONE</span></div>
+      <div class="phase active"><div class="dot">2</div><div><strong>Find dates</strong><br><span class="small">January, February, September, November, early December.</span></div><span class="status">NOW</span></div>
+      <div class="phase active"><div class="dot">3</div><div><strong>Compare lodging</strong><br><span class="small">Off-site hotel vs Good Neighbor vs Disney value promo.</span></div><span class="status">NOW</span></div>
+      <div class="phase later"><div class="dot">4</div><div><strong>Lock ticket strategy</strong><br><span class="small">1 or 2 park days. Tickets decide whether this survives.</span></div><span class="status">NEXT</span></div>
+      <div class="phase later"><div class="dot">5</div><div><strong>Book only if math works</strong><br><span class="small">No pretending food, parking, and meltdowns are free.</span></div><span class="status">WAIT</span></div>
+    </div>
+  </section>
+
+  <section class="three">
+    <div class="card"><h2>Bot Alerts</h2><div class="alert"><strong>Watch alert:</strong><br><span class="small">Disney promo appears under budget target.</span></div><div class="alert"><strong>Price alert:</strong><br><span class="small">Hotel + tickets estimate drops below $3,000.</span></div><div class="alert"><strong>Action needed:</strong><br><span class="small">Good deal found, verify before it disappears.</span></div></div>
+    <div class="card"><h2>Next 5 Moves</h2><ol class="checklist"><li>Pick 3 date windows.</li><li>Find hotel options under $900 total.</li><li>Price 1-day and 2-day tickets.</li><li>Estimate gas and food honestly.</li><li>Choose the trip version only after total cost works.</li></ol></div>
+    <div class="card"><h2>Family Fit</h2><ul class="checklist"><li><strong>3-year-old:</strong> stroller/rest breaks.</li><li><strong>6-year-old:</strong> magic moments.</li><li><strong>14 & 16:</strong> big rides and freedom.</li><li><strong>Parents:</strong> joyful, not financially dumb.</li></ul></div>
+  </section>
+
+  <section class="two">
+    <div class="card"><h2>Deal Candidates</h2><div class="deal"><div class="score">82</div><div><h3>Off-site hotel + 1 Disney park day</h3><p>Most realistic version inside $2K–$3K.</p></div></div><div class="deal"><div class="score">71</div><div><h3>Good Neighbor hotel + 2 park days</h3><p>Better Disney feel, but tickets may push the trip over budget.</p></div></div><div class="deal"><div class="score">54</div><div><h3>Disney value resort package</h3><p>Great experience, weak budget fit unless a serious promotion appears.</p></div></div></div>
+    <div class="card"><h2>Deal Sources</h2><div class="button-row"><a class="btn primary" href="https://disneyworld.disney.go.com/special-offers/" target="_blank">Disney Offers</a><a class="btn" href="https://www.undercovertourist.com/orlando/walt-disney-world-resort/" target="_blank">Ticket Deals</a><a class="btn" href="https://www.google.com/travel/hotels/Orlando" target="_blank">Hotels</a><a class="btn" href="https://www.google.com/maps/dir/Texarkana,+TX/Walt+Disney+World+Resort,+Orlando,+FL" target="_blank">Drive Route</a></div><p class="small">Text alerts require a provider like Twilio, Gmail, or another messaging API. The dashboard is ready for alert rules; sending actual SMS needs that provider key.</p></div>
+  </section>
+</main>
+<script>
+  const targetBudget = 3000;
+  const fields = ['gas','lodging','tickets','food','extras','budget','savedAmount','tripDate'];
+  function money(n){return '$'+Math.round(n).toLocaleString();}
+  function save(){fields.forEach(id=>{const el=document.getElementById(id);if(el)localStorage.setItem('disney_'+id,el.value);});}
+  function load(){fields.forEach(id=>{const el=document.getElementById(id);const v=localStorage.getItem('disney_'+id);if(el&&v!==null)el.value=v;});}
+  function update(){
+    const gas=+document.getElementById('gas').value||0,lodging=+document.getElementById('lodging').value||0,tickets=+document.getElementById('tickets').value||0,food=+document.getElementById('food').value||0,extras=+document.getElementById('extras').value||0,budget=+document.getElementById('budget').value||3000,saved=+document.getElementById('savedAmount').value||0;
+    const total=gas+lodging+tickets+food+extras;
+    document.getElementById('totalCost').textContent=money(total);
+    const verdict=document.getElementById('budgetVerdict');
+    if(total<=budget){verdict.className='green';verdict.innerHTML='<strong>Candidate trip.</strong> This version fits the ceiling. Verify real prices before booking.';} else {verdict.className='red';verdict.innerHTML='<strong>Over budget by '+money(total-budget)+'.</strong> Cut ticket days, lodging, or food plan.';}
+    const pct=Math.min(100,Math.round(saved/budget*100));
+    document.getElementById('savingsBar').style.setProperty('--w',pct+'%');
+    document.getElementById('savingsText').textContent='Savings progress: '+money(saved)+' of '+money(budget)+' ('+pct+'%)';
+    document.getElementById('budgetRing').style.setProperty('--p',pct);
+    document.getElementById('budgetPct').textContent=pct+'%';
+    const readiness=Math.min(100,Math.round(25 + pct*.35 + (total<=budget?25:0)));
+    document.getElementById('readinessNum').textContent=readiness+'%';
+    document.getElementById('readinessBar').style.setProperty('--w',readiness+'%');
+    const date=document.getElementById('tripDate').value;
+    if(date){const days=Math.ceil((new Date(date+'T00:00:00')-new Date())/86400000);document.getElementById('countdown').textContent=days>=0?days+' days':'Trip date passed';} else document.getElementById('countdown').textContent='Pick a date';
+    save();
+  }
+  load(); fields.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',update);}); update();
+</script>
 </body>
 </html>
