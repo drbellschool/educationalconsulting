@@ -1,0 +1,67 @@
+{
+  "type": "object",
+  "required": ["experience_id", "title", "subject", "TEKS_ids", "experience_type"],
+  "properties": {
+    "experience_id": { "type": "string" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "subject": { "type": "string" },
+    "grade_range": { "type": "string" },
+    "TEKS_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "experience_type": {
+      "type": "string",
+      "enum": [
+        "science_lab",
+        "field_observation",
+        "water_test",
+        "gardening_experiment",
+        "engineering_build",
+        "debate",
+        "speech",
+        "writing_workshop",
+        "cte_demonstration",
+        "custom"
+      ]
+    },
+    "materials": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "safety_notes": { "type": "string" },
+    "instructions": { "type": "string" },
+    "data_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field_name": { "type": "string" },
+          "field_type": { "type": "string" },
+          "unit": { "type": "string" },
+          "required": { "type": "boolean" }
+        }
+      }
+    },
+    "required_artifacts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "simulation_effect_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "condition": { "type": "string" },
+          "effect": { "type": "string" },
+          "teacher_approval_required": { "type": "boolean" }
+        }
+      }
+    },
+    "teacher_approval_status": {
+      "type": "string",
+      "enum": ["draft", "approved", "rejected", "needs_revision"]
+    }
+  }
+}
