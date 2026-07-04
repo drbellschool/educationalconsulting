@@ -1,0 +1,54 @@
+{
+  "type": "object",
+  "required": [
+    "fact_id",
+    "place",
+    "year",
+    "claim",
+    "classification",
+    "source_title",
+    "source_url",
+    "confidence"
+  ],
+  "properties": {
+    "fact_id": {
+      "type": "string",
+      "description": "Stable ID for the extracted fact."
+    },
+    "place": {
+      "type": "string"
+    },
+    "year": {
+      "type": "integer"
+    },
+    "date": {
+      "type": "string",
+      "description": "ISO date if known. Use YYYY or YYYY-MM-DD when possible."
+    },
+    "claim": {
+      "type": "string",
+      "description": "The historical claim stated as plainly as possible."
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["verified_fact", "inference", "fictional_gameplay"]
+    },
+    "source_title": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "source_type": {
+      "type": "string",
+      "examples": ["Sanborn map", "newspaper", "photograph", "directory", "census", "county history"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}
