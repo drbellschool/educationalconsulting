@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "required": [
+    "location_id",
+    "place",
+    "map_year",
+    "label",
+    "source_map"
+  ],
+  "properties": {
+    "location_id": {
+      "type": "string",
+      "description": "Stable playable location ID, such as TXK-1885-B042."
+    },
+    "place": {
+      "type": "string"
+    },
+    "map_year": {
+      "type": "integer"
+    },
+    "street": {
+      "type": "string"
+    },
+    "label": {
+      "type": "string",
+      "description": "Building or location label from map when readable."
+    },
+    "building_material": {
+      "type": "string"
+    },
+    "stories": {
+      "type": "number"
+    },
+    "roof": {
+      "type": "string"
+    },
+    "nearby_location_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_map": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}
