@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "required": ["rubric_id", "title", "criteria"],
+  "properties": {
+    "rubric_id": { "type": "string" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "subject": { "type": "string" },
+    "grade_range": { "type": "string" },
+    "TEKS_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "rubric_type": {
+      "type": "string",
+      "enum": ["writing", "lab_report", "oral_presentation", "engineering", "source_analysis", "custom"]
+    },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["criterion_id", "name", "levels"],
+        "properties": {
+          "criterion_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "weight": { "type": "number" },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["score", "label", "description"],
+              "properties": {
+                "score": { "type": "number" },
+                "label": { "type": "string" },
+                "description": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "string",
+      "description": "District, teacher-created, state-aligned, or custom."
+    },
+    "created_by": { "type": "string" },
+    "review_status": {
+      "type": "string",
+      "enum": ["draft", "teacher_approved", "district_approved", "archived"]
+    }
+  }
+}
