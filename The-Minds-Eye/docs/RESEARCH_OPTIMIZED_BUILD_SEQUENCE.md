@@ -8,9 +8,11 @@ The Mind's Eye should be built as an approval-driven historical learning operati
 
 ## Guiding Principle
 
-Build the trust layer first, then build the map early.
+Build the trust layer first, then build the map early, then build the standards-based evidence layer before expanding gameplay.
 
 The map is the opportunity engine. It reveals the buildings, streets, railroads, depots, churches, courts, businesses, creeks, bridges, and civic locations that make accurate learning scenarios possible.
+
+The standards/evidence layer is the instructional validity engine. It proves students are mastering standards rather than only playing inside an attractive simulation.
 
 The correct sequence is:
 
@@ -18,11 +20,12 @@ The correct sequence is:
 2. Sanborn Map Builder and city database
 3. community review and map approval
 4. historical digital twin
-5. standards, HQIM, assessment artifacts, and mastery evidence
+5. standards registry, HQIM gates, proficiency scales, gradebook conversion, and assessment artifacts
 6. world simulation and domain systems
-7. teacher/student workflow
-8. visual polish
-9. scale and governance
+7. adaptive mission/intervention engine
+8. teacher/student workflow
+9. visual polish
+10. scale and governance
 
 ## Phase 0: Product Constitution
 
@@ -33,6 +36,7 @@ Deliverables:
 - product principles
 - provenance rules
 - HQIM alignment framework
+- standards-based grading policy
 - student privacy posture
 - teacher authority model
 - community review model
@@ -43,6 +47,7 @@ Exit criteria:
 - every generated object has a provenance strategy
 - every lesson has an instructional quality strategy
 - every student-facing AI feature has a teacher-control strategy
+- every grade claim has a standards-based evidence strategy
 
 ## Phase 1: Minimal Provenance and Source Foundation
 
@@ -58,7 +63,7 @@ Build first:
 
 Why:
 
-No map, quest, NPC, artifact, or visual can be trusted without source and provenance infrastructure. But this phase should stay intentionally lean so the project can move quickly into map construction.
+No map, quest, NPC, artifact, visual, or assessment claim can be trusted without source and provenance infrastructure. But this phase should stay intentionally lean so the project can move quickly into map construction.
 
 Exit criteria:
 
@@ -159,27 +164,34 @@ Exit criteria:
 - system can query town locations by street, building type, institution, railroad feature, civic function, or source
 - scenario generator can inspect the approved town inventory
 
-## Phase 5: Standards, HQIM, and Mastery Layer
+## Phase 5: Standards, HQIM, Proficiency, and Gradebook Layer
 
-Build:
+Build before major gameplay expansion:
 
 - TEKS registry
 - subject/course picker
 - standard-to-skill mapping
+- 1-4 proficiency scale model
 - learning claim model
 - evidence requirement model
+- standards-based gradebook engine
+- mission-grade conversion policy
 - HQIM evidence binder structure
+- lesson quality gates
 
 Why:
 
-Once the town's opportunity space exists, the system can intelligently match real locations and historical features to TEKS-aligned learning tasks.
+Once the town's opportunity space exists, the system can intelligently match real locations and historical features to TEKS-aligned learning tasks. This phase prevents the platform from becoming a game first and curriculum second.
 
 Exit criteria:
 
 - teacher can select TEKS
 - system can define what counts as evidence for that TEKS
 - system can suggest town-based opportunities for a selected TEKS
-- lesson package can export standards alignment
+- each mission can identify 1-5 assessed standards
+- standards can be scored on a 1-4 scale
+- mission grades can convert to a configurable 60-100 reporting scale
+- lesson package can export standards alignment and HQIM evidence
 
 ## Phase 6: Assessment Artifact and Rubric Layer
 
@@ -188,6 +200,8 @@ Build:
 - artifact framework
 - rubric schema
 - rubric upload/manual creation
+- writing artifact workflow
+- science lab evidence workflow
 - AI feedback draft workflow
 - teacher final scoring/override
 - mastery attempt ledger
@@ -202,6 +216,7 @@ Exit criteria:
 - artifact can connect to TEKS and rubric
 - teacher can score/override
 - mastery dashboard can update from approved evidence
+- rubric scoring can update standards-based gradebook records
 
 ## Phase 7: World Engine and Domain Systems
 
@@ -215,21 +230,25 @@ Build:
 - institutions
 - justice/court consequences
 - NPC state
+- historical communication engine
 
 Why:
 
-Only after the digital twin is approved should the world become interactive.
+Only after the digital twin and assessment foundation are approved should the world become deeply interactive.
 
 Exit criteria:
 
 - student/team actions create ledger events
 - teacher can approve major consequence branches
 - world state changes are traceable
+- student communications are teacher-owned and monitored
 
-## Phase 8: Experience Engine and Lesson Generator
+## Phase 8: Adaptive Mission, Intervention, and Experience Engine
 
 Build:
 
+- adaptive mission routing
+- intervention task generator
 - real-world lab connectors
 - writing connectors
 - scenario generator
@@ -239,13 +258,15 @@ Build:
 
 Why:
 
-The lesson generator should use approved town data, the assessment infrastructure, and the TEKS/HQIM layer together.
+The lesson generator should use approved town data, the assessment infrastructure, and the TEKS/HQIM layer together. Students who need practice should receive meaningful town tasks that strengthen deficits without feeling punitive.
 
 Exit criteria:
 
 - teacher can generate a standards-aligned scenario from approved town data
 - scenario requires TEKS execution
 - artifact evidence is embedded into gameplay
+- struggling students receive standards-targeted practice opportunities
+- intervention tasks update evidence records only when students produce validated work
 
 ## Phase 9: Teacher and Student Dashboards
 
@@ -255,6 +276,7 @@ Build:
 - lesson approval screen
 - live session controls
 - mastery dashboard
+- standards-based gradebook dashboard
 - student role view
 - map view
 - artifact submission
@@ -268,7 +290,8 @@ Exit criteria:
 
 - teacher can run a class session
 - students can navigate, act, submit evidence, and receive supports
-- teacher can see mastery status
+- teacher can see mastery status and gradebook conversion
+- teacher can export evidence and grades
 
 ## Phase 10: Visual Map Renderer and AI Polish
 
@@ -302,6 +325,7 @@ Build:
 - district export/import
 - analytics/observability
 - security/accessibility checks
+- HQIM evidence binder export at town/unit/lesson level
 
 Why:
 
@@ -312,11 +336,16 @@ Exit criteria:
 - new towns can onboard using repeatable workflow
 - community reviewers can improve town data
 - districts can evaluate adoption evidence
+- standards-based reports can be exported consistently across towns
 
 ## Non-Negotiable
 
 Do not allow the simulation layer to create truth.
 
 Truth comes from sources, review, teacher approval, and explicit creative labels.
+
+Do not allow the gameplay layer to create mastery.
+
+Mastery comes from standards-aligned evidence, rubrics, proficiency scales, teacher validation, and transparent gradebook records.
 
 The map comes early because it reveals what accurate instructional possibilities exist, but the map still must carry provenance and pass human review before becoming the playable world.
