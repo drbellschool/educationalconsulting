@@ -41,6 +41,7 @@ The platform should support:
 - repeated mastery demonstrations
 - prerequisite skill awareness
 - spiraled vocabulary and concepts
+- town-based continuity across missions
 
 ### 3. Knowledge Building
 
@@ -86,6 +87,7 @@ Each lesson package should include:
 - artifact/rubric requirements
 - accommodations
 - mastery evidence plan
+- gradebook conversion preview
 - answer/rationale guidance where appropriate
 
 ### 6. Assessment Coherence
@@ -97,10 +99,12 @@ The platform should include:
 - artifact requirements
 - rubrics
 - mastery attempts
+- 1-4 proficiency scale records
 - teacher scoring controls
 - AI feedback recommendations
 - revision cycles
 - evidence dashboards
+- standards-based gradebook conversion
 
 ### 7. Equity and Access
 
@@ -129,6 +133,68 @@ Every visible historical claim should be:
 - reviewable
 - distinguished from simulation or creative licensing
 
+### 9. Standards-Based Practices
+
+The platform must keep learning records by standard before converting to mission grades.
+
+Required behaviors:
+
+- each assessed standard receives a 1-4 mastery score
+- each score connects to validated evidence
+- each mission grade is derived from the average of its assessed standard scores
+- incomplete means no meaningful evidence, not merely low early performance
+- teachers can override AI recommendations
+- later stronger evidence can improve current mastery
+- support level is tracked so mastery reflects independence
+
+### 10. Authentic Performance Tasks
+
+HQIM alignment should not force fake worksheets into the simulation.
+
+Academic work should appear as authentic town products:
+
+- newspaper articles
+- editorials
+- telegrams
+- court statements
+- affidavits
+- lab reports
+- town council proposals
+- railroad reports
+- business ledgers
+- historical marker proposals
+- scientific investigation reports
+
+Each artifact must still have clear standards, criteria, and evidence expectations.
+
+## HQIM Quality Gates
+
+Before a generated lesson or mission becomes teacher-ready, it must pass these gates.
+
+### Gate 1: Standards Fit
+
+The task requires students to perform the selected standard, not merely encounter content related to the standard.
+
+### Gate 2: Source and Content Validity
+
+The task uses approved town data, cited sources, and visible provenance labels.
+
+### Gate 3: Cognitive Demand
+
+The task requires reasoning, explanation, analysis, evidence, investigation, problem solving, or argument.
+
+### Gate 4: Assessment Validity
+
+The task produces a visible artifact or observable action that can be scored against a rubric or proficiency scale.
+
+### Gate 5: Accessibility
+
+The task includes EB, SPED, 504, and accessibility supports that can be enabled by the teacher.
+
+### Gate 6: Teacher Usability
+
+The task gives the teacher enough information to launch, monitor, pause, support, score, and export evidence.
+
 ## HQIM Evidence Binder
 
 For district adoption, each unit or town package should be able to export an HQIM evidence binder.
@@ -144,11 +210,13 @@ Binder sections:
 7. Rubrics and assessment artifacts
 8. Accessibility and differentiation supports
 9. Mastery evidence model
-10. Review and provenance report
-11. Data privacy and AI-use statement
+10. Standards-based gradebook conversion model
+11. Review and provenance report
+12. Data privacy and AI-use statement
+13. Teacher approval and override record
 
 ## Product Rule
 
-If The Mind's Eye wants district adoption, it must produce evidence that it is instructionally coherent, standards-aligned, teacher-usable, assessable, accessible, and historically trustworthy.
+If The Mind's Eye wants district adoption, it must produce evidence that it is instructionally coherent, standards-aligned, teacher-usable, assessable, accessible, historically trustworthy, and gradebook-compatible.
 
 The simulation is the delivery method. The curriculum quality is the product.
