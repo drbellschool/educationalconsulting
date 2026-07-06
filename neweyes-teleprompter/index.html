@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>NewEyes TikTok Teleprompter</title>
+  <style>
+    :root { --bg:#0b0b0f; --card:#fff; --ink:#111; --accent:#ff8a00; --muted:#aaa; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Arial, sans-serif; background:var(--bg); color:#fff; }
+    header { padding:18px 16px 8px; }
+    h1 { margin:0; font-size:24px; }
+    h2 { margin:0 0 8px; }
+    .muted { color:var(--muted); font-size:14px; }
+    .card { background:var(--card); color:var(--ink); border-radius:16px; padding:16px; margin:12px 16px; }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    button { border:0; border-radius:10px; padding:10px 14px; font-size:16px; font-weight:700; cursor:pointer; }
+    button.primary { background:var(--accent); color:#111; }
+    button.danger { background:#e74c3c; color:#fff; }
+    .pill { display:inline-block; background:#eee; color:#111; padding:4px 8px; border-radius:999px; font-size:12px; }
+    #status { padding:0 16px 10px; color:#ddd; }
+
+    #recorder { position:fixed; inset:0; background:#000; display:none; overflow:hidden; z-index:100; }
+    #recorder.active { display:block; }
+    #camera { position:fixed; inset:0; width:100vw; height:100vh; object-fit:cover; transform:scaleX(-1); background:#000; }
+    #shade { position:fixed; inset:0; background:rgba(0,0,0,.38); }
+    #topbar { position:fixed; top:0; left:0; right:0; z-index:120; padding:10px; padding-top:calc(10px + env(safe-area-inset-top)); background:rgba(0,0,0,.72); display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    #prompt { position:absolute; z-index:110; top:128px; left:8vw; right:8vw; padding-bottom:95vh; font-size:42px; line-height:1.45; white-space:pre-wrap; text-shadow:0 2px 10px #000; }
+    label { font-size:13px; }
+    input[type=range] { width:90px; }
+    #recStatus { font-size:13px; opacity:.9; }
+    #takePreview { position:fixed; right:10px; bottom:10px; z-index:130; width:170px; max-width:45vw; display:none; border:2px solid white; background:#000; }
+    #downloadTake { position:fixed; left:10px; bottom:10px; z-index:131; display:none; background:#fff; color:#111; padding:10px; border-radius:10px; font-weight:700; text-decoration:none; }
+    .tiny { font-size:12px; opacity:.8; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>NewEyes TikTok Teleprompter</h1>
+    <div class="muted">Reads your Google Sheet pipeline and records locally on your phone.</div>
+  </header>
+
+  <div id="status">Loading episodes from NewEyes Studio...</div>
+  <div class="row" style="padding:0 16px 10px;">
+    <button class="primary" onclick="loadEpisodes()">Refresh Episodes</button>
+  </div>
+  <main id="episodes"></main>
+
+  <section id="recorder">
+    <video id="camera" autoplay playsinline muted></video>
+    <div id="shade"></div>
+
+    <div id="topbar">
+      <button onclick="closeRecorder()">Dock</button>
+      <button onclick="startCamera()">Camera</button>
+      <button class="primary" onclick="startRecording()">Record</button>
+      <button class="danger" onclick="stopRecording()">Stop</button>
+      <button onclick="toggleScroll()">Scroll</button>
+      <button onclick="resetScroll()">Reset</button>
+      <label>Speed <input id="speed" type="range" min="0" max="5" step=".25" value="1.25"></label>
+      <label>Font <input id="font" type="range" min="24" max="76" step="2" value="42" oninput="setFont()"></label>
+      <span id="recStatus">Ready</span>
+    </div>
+
+    <div id="prompt">Select an episode.</div>
+    <video id="takePreview" controls playsinline></video>
+    <a id="downloadTake">Download Take</a>
+  </section>
+
+  <script>
+    // This is the Google Apps Script /exec endpoint from the NewEyes Studio pipeline.
+    // It must support JSONP actions: listEpisodes and getEpisodeScript.
+    const NEWEYES_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxX0J_yqJaJedD0gixgKiPLBIMXS9frc3hP7UI9EKNedaCGg7ZJIgUa1SZv3-zKs3cG/exec';
+
+    let selectedEpisode = null;
+    let running = false;
+    let last = null;
+    let stream = null;
+    let recorder = null;
+    let chunks = [];
+
+    function jsonp(params) {
+      return new Promise((resolve, reject) => {
+        const callback = 'neweyes_cb_' + Math.random().toString(36).slice(2);
+        window[callback] = data => {
+          delete window[callback];
+          script.remove();
+          resolve(data);
+        };
+        const url = new URL(NEWEYES_APPS_SCRIPT_URL);
+        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+        url.searchParams.set('callback', callback);
+        const script = document.createElement('script');
+        script.src = url.toString();
+        script.onerror = () => reject(new Error('Could not reach the NewEyes Google pipeline. Make sure Apps Script was updated and redeployed.'));
+        document.body.appendChild(script);
+      });
+    }
+
+    async function loadEpisodes() {
+      document.getElementById('status').textContent = 'Loading episodes from NewEyes Studio...';
+      try {
+        const res = await jsonp({ action: 'listEpisodes' });
+        if (!res.ok) throw new Error(res.error || 'Unknown Google pipeline error.');
+        const items = res.episodes || [];
+        document.getElementById('status').textContent = 'Loaded ' + items.length + ' episodes.';
+        document.getElementById('episodes').innerHTML = items.map(episodeCard).join('') || '<div class="card">No episodes found. Send one from the NewEyes GPT pipeline first.</div>';
+      } catch (err) {
+        document.getElementById('status').textContent = err.message || String(err);
+      }
+    }
+
+    function episodeCard(ep) {
+      const id = escapeHtml(ep.EpisodeID || '');
+      const title = escapeHtml(ep.Title || 'Untitled');
+      const status = escapeHtml(ep.Status || '');
+      const summary = escapeHtml(ep.Summary || '');
+      const runtime = escapeHtml(ep.EstimatedRuntime || '');
+      return `
+        <div class="card">
+          <h2>${title}</h2>
+          <p><span class="pill">${id}</span> <span class="pill">${status}</span> ${runtime ? `<span class="pill">${runtime}</span>` : ''}</p>
+          <p>${summary}</p>
+          <button class="primary" onclick="openRecorder('${escapeJs(ep.EpisodeID)}')">Start Recording</button>
+        </div>`;
+    }
+
+    async function openRecorder(episodeId) {
+      document.getElementById('recorder').classList.add('active');
+      document.getElementById('recStatus').textContent = 'Loading ' + episodeId + '...';
+      document.getElementById('prompt').textContent = 'Loading script...';
+      resetTakePreview();
+      try {
+        const res = await jsonp({ action: 'getEpisodeScript', episode_id: episodeId });
+        if (!res.ok) throw new Error(res.error || 'Could not load script.');
+        selectedEpisode = res.episode;
+        document.getElementById('prompt').textContent = selectedEpisode.full_script || 'No script found.';
+        document.getElementById('recStatus').textContent = selectedEpisode.episode_id + ' — ' + selectedEpisode.title;
+        window.scrollTo(0, 0);
+      } catch (err) {
+        document.getElementById('prompt').textContent = err.message || String(err);
+      }
+    }
+
+    function closeRecorder() {
+      running = false;
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      document.getElementById('recorder').classList.remove('active');
+    }
+
+    async function startCamera() {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera recording is not supported in this browser. Try Safari/Chrome on iPhone using the HTTPS page.');
+        }
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
+        document.getElementById('camera').srcObject = stream;
+        document.getElementById('recStatus').textContent = 'Camera ready';
+      } catch (err) {
+        alert(err.message || String(err));
+      }
+    }
+
+    function startRecording() {
+      if (!stream) { alert('Tap Camera first.'); return; }
+      chunks = [];
+      resetTakePreview();
+
+      let options = {};
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported('video/mp4')) {
+        options = { mimeType: 'video/mp4' };
+      } else if (window.MediaRecorder && MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+        options = { mimeType: 'video/webm;codecs=vp9' };
+      } else if (window.MediaRecorder && MediaRecorder.isTypeSupported('video/webm')) {
+        options = { mimeType: 'video/webm' };
+      }
+
+      try {
+        recorder = new MediaRecorder(stream, options);
+      } catch (err) {
+        alert('This browser opened the camera, but cannot record video with MediaRecorder. Try current Safari/Chrome or use the phone camera while reading the prompt.');
+        return;
+      }
+
+      recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+      recorder.onstop = saveTake;
+      recorder.start();
+      document.getElementById('recStatus').textContent = 'Recording...';
+    }
+
+    function stopRecording() {
+      if (recorder && recorder.state !== 'inactive') recorder.stop();
+      running = false;
+    }
+
+    function saveTake() {
+      const type = recorder.mimeType || 'video/webm';
+      const ext = type.includes('mp4') ? 'mp4' : 'webm';
+      const blob = new Blob(chunks, { type });
+      const url = URL.createObjectURL(blob);
+      const preview = document.getElementById('takePreview');
+      preview.src = url;
+      preview.style.display = 'block';
+
+      const a = document.getElementById('downloadTake');
+      a.href = url;
+      a.download = (selectedEpisode?.episode_id || 'neweyes') + '-take.' + ext;
+      a.style.display = 'block';
+      a.textContent = 'Download Take';
+      document.getElementById('recStatus').textContent = 'Take ready. Preview or download it.';
+    }
+
+    function resetTakePreview() {
+      const preview = document.getElementById('takePreview');
+      preview.removeAttribute('src');
+      preview.style.display = 'none';
+      const a = document.getElementById('downloadTake');
+      a.removeAttribute('href');
+      a.style.display = 'none';
+    }
+
+    function toggleScroll() {
+      running = !running;
+      last = null;
+      requestAnimationFrame(tick);
+    }
+
+    function tick(ts) {
+      if (!running) return;
+      if (last === null) last = ts;
+      const delta = ts - last;
+      last = ts;
+      window.scrollBy(0, Number(document.getElementById('speed').value) * delta / 16);
+      requestAnimationFrame(tick);
+    }
+
+    function resetScroll() {
+      running = false;
+      window.scrollTo(0, 0);
+    }
+
+    function setFont() {
+      document.getElementById('prompt').style.fontSize = document.getElementById('font').value + 'px';
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    }
+
+    function escapeJs(str) {
+      return String(str ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    loadEpisodes();
+  </script>
+</body>
+</html>
