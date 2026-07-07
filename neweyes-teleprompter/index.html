@@ -5,338 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>NewEyes TikTok Teleprompter</title>
   <style>
-    :root { --bg:#0b0b0f; --card:#fff; --ink:#111; --accent:#ff8a00; --muted:#aaa; --danger:#e74c3c; --good:#17c964; }
-    * { box-sizing:border-box; }
-    html, body { min-height:100%; }
-    body { margin:0; font-family:Arial, sans-serif; background:var(--bg); color:#fff; }
-    header { padding:18px 16px 8px; }
-    h1 { margin:0; font-size:24px; }
-    h2 { margin:0 0 8px; }
-    .muted { color:var(--muted); font-size:14px; }
-    .card { background:var(--card); color:var(--ink); border-radius:16px; padding:16px; margin:12px 16px; }
-    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    button { border:0; border-radius:14px; padding:16px 20px; font-size:20px; font-weight:800; cursor:pointer; min-height:58px; }
-    button.primary { background:var(--accent); color:#111; }
-    button.danger { background:var(--danger); color:#fff; }
-    button.good { background:var(--good); color:#07150b; }
-    button.secondary { background:#f2f2f2; color:#111; }
-    .pill { display:inline-block; background:#eee; color:#111; padding:4px 8px; border-radius:999px; font-size:12px; }
-    #status { padding:0 16px 10px; color:#ddd; }
+    :root{--bg:#0b0b0f;--card:#fff;--ink:#111;--accent:#ff8a00;--muted:#aaa;--danger:#e74c3c;--good:#17c964}
+    *{box-sizing:border-box} html,body{min-height:100%;margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#fff}
+    header{padding:18px 16px 8px} h1{margin:0;font-size:24px} h2{margin:0 0 8px}.muted{color:var(--muted);font-size:14px}
+    .card{background:var(--card);color:var(--ink);border-radius:16px;padding:16px;margin:12px 16px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    button{border:0;border-radius:14px;padding:16px 20px;font-size:20px;font-weight:800;cursor:pointer;min-height:58px}button.primary{background:var(--accent);color:#111}button.danger{background:var(--danger);color:#fff}button.good{background:var(--good);color:#07150b}button.secondary{background:#f2f2f2;color:#111}.pill{display:inline-block;background:#eee;color:#111;padding:4px 8px;border-radius:999px;font-size:12px}#status{padding:0 16px 10px;color:#ddd}
 
-    #recorder { position:fixed; inset:0; height:100dvh; width:100vw; background:#000; display:none; overflow-y:auto; z-index:100; -webkit-overflow-scrolling:touch; }
-    #recorder.active { display:block; }
-    #camera { position:fixed; inset:0; width:100vw; height:100dvh; object-fit:cover; transform:scaleX(-1); background:#000; }
-    #shade { position:fixed; inset:0; background:rgba(0,0,0,.36); pointer-events:none; }
-    #topbar { position:fixed; top:0; left:0; right:0; z-index:120; padding:10px; padding-top:calc(10px + env(safe-area-inset-top)); background:rgba(0,0,0,.72); display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    #prompt { position:relative; z-index:110; margin-top:230px; margin-left:7vw; margin-right:7vw; padding-bottom:120vh; font-size:52px; line-height:1.45; white-space:pre-wrap; text-shadow:0 3px 12px #000; }
-    label { font-size:15px; font-weight:700; }
-    input[type=range] { width:100px; height:34px; }
-    input[type=number] { width:84px; font-size:20px; font-weight:800; padding:10px; border-radius:10px; border:0; }
-    #recStatus { font-size:16px; font-weight:700; opacity:.95; }
-    #takePreview { position:fixed; right:10px; bottom:10px; z-index:130; width:170px; max-width:45vw; display:none; border:2px solid white; background:#000; }
-    #downloadTake { position:fixed; left:10px; bottom:10px; z-index:131; display:none; background:#fff; color:#111; padding:14px 16px; border-radius:14px; font-weight:800; text-decoration:none; font-size:18px; }
-    #countdown { position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.48); font-size:32vw; font-weight:900; text-shadow:0 4px 20px #000; }
-    @media (max-width:600px) {
-      button { font-size:18px; padding:14px 16px; min-height:56px; }
-      #prompt { margin-top:245px; font-size:50px; }
-      input[type=range] { width:92px; }
-      input[type=number] { width:78px; }
-    }
+    #recorder{position:fixed;inset:0;height:100dvh;width:100vw;background:#000;display:none;overflow-y:auto;z-index:100;-webkit-overflow-scrolling:touch}#recorder.active{display:block}
+    #sourceVideo{display:none}#cameraCanvas{position:fixed;inset:0;width:100vw;height:100dvh;background:#000}.recordingFrame{position:fixed;inset:0;pointer-events:none;border:0 solid transparent}
+    #shade{position:fixed;inset:0;background:rgba(0,0,0,.34);pointer-events:none}#prompt{position:relative;z-index:110;margin-top:74px;margin-left:7vw;margin-right:7vw;padding-bottom:128vh;font-size:52px;line-height:1.45;white-space:pre-wrap;text-shadow:0 3px 12px #000}
+    #controlbar{position:fixed;left:0;right:0;bottom:0;z-index:140;padding:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom));background:rgba(0,0,0,.78);display:flex;gap:10px;flex-wrap:wrap;align-items:center}#recStatus{font-size:15px;font-weight:700;opacity:.95;min-width:100%}
+    .wpmBox{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800}.wpmValue{font-size:28px;min-width:58px;text-align:center;color:#fff}input[type=range]{width:170px;height:38px}input[type=range]::-webkit-slider-thumb{transform:scale(1.5)}
+    #takePreview{position:fixed;right:10px;top:92px;z-index:130;width:130px;max-width:34vw;display:none;border:2px solid #fff;background:#000}#downloadTake{display:none;background:#fff;color:#111;padding:14px 16px;border-radius:14px;font-weight:800;text-decoration:none;font-size:18px}
+    #countdown{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.48);font-size:32vw;font-weight:900;text-shadow:0 4px 20px #000}
+    @media(max-width:600px){button{font-size:18px;padding:14px 16px;min-height:56px}#prompt{font-size:50px;margin-top:74px}.wpmBox{min-width:100%}input[type=range]{width:60vw}}
   </style>
 </head>
 <body>
-  <header>
-    <h1>NewEyes TikTok Teleprompter</h1>
-    <div class="muted">Reads your Google Sheet pipeline and records locally on your phone.</div>
-  </header>
-
-  <div id="status">Loading episodes from NewEyes Studio...</div>
-  <div class="row" style="padding:0 16px 10px;">
-    <button class="primary" onclick="loadEpisodes()">Refresh Episodes</button>
-  </div>
-  <main id="episodes"></main>
+  <header><h1>NewEyes TikTok Teleprompter</h1><div class="muted">Reads your Google Sheet pipeline and records locally on your phone.</div></header>
+  <div id="status">Loading episodes from NewEyes Studio...</div><div class="row" style="padding:0 16px 10px"><button class="primary" onclick="loadEpisodes()">Refresh Episodes</button></div><main id="episodes"></main>
 
   <section id="recorder">
-    <video id="camera" autoplay playsinline muted></video>
-    <div id="shade"></div>
-    <div id="countdown">3</div>
-
-    <div id="topbar">
-      <button class="secondary" onclick="closeRecorder()">Dock</button>
-      <button class="secondary" onclick="startCamera()">Camera</button>
-      <button class="primary" onclick="beginCountdownAndRecord()">Record</button>
-      <button class="danger" onclick="stopRecording()">Stop</button>
-      <button class="secondary" onclick="redoTake()">Redo</button>
-      <button class="good" onclick="toggleScroll()">Scroll</button>
-      <button class="secondary" onclick="resetScroll()">Reset</button>
-      <label>WPM <input id="wpm" type="number" min="80" max="400" step="5" value="220" onchange="updateWpmLabel()"></label>
-      <label>Font <input id="font" type="range" min="28" max="84" step="2" value="52" oninput="setFont()"></label>
+    <video id="sourceVideo" autoplay playsinline muted></video><canvas id="cameraCanvas" width="1080" height="1920"></canvas><div id="shade"></div><div id="countdown">3</div>
+    <div id="prompt">Select an episode.</div><video id="takePreview" controls playsinline></video>
+    <div id="controlbar">
       <span id="recStatus">Ready</span>
+      <button class="secondary" onclick="closeRecorder()">Dock</button><button class="secondary" onclick="startCamera()">Camera</button><button class="primary" onclick="beginCountdownAndRecord()">Record</button><button class="danger" onclick="stopRecording()">Stop</button><button class="secondary" onclick="redoTake()">Redo</button><button class="good" onclick="toggleScroll()">Scroll</button><button class="secondary" onclick="resetScroll()">Reset</button>
+      <div class="wpmBox">WPM <span id="wpmValue" class="wpmValue">220</span><input id="wpm" type="range" min="80" max="400" step="5" value="220" oninput="updateWpmLabel()"></div>
+      <div class="wpmBox">Font <input id="font" type="range" min="28" max="84" step="2" value="52" oninput="setFont()"></div>
+      <a id="downloadTake">Download Take</a><button class="secondary" onclick="shareTake()">Share/Upload</button>
     </div>
-
-    <div id="prompt">Select an episode.</div>
-    <video id="takePreview" controls playsinline></video>
-    <a id="downloadTake">Download Take</a>
   </section>
 
-  <script>
-    const NEWEYES_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxX0J_yqJaJedD0gixgKiPLBIMXS9frc3hP7UI9EKNedaCGg7ZJIgUa1SZv3-zKs3cG/exec';
-
-    let selectedEpisode = null;
-    let running = false;
-    let last = null;
-    let stream = null;
-    let recorder = null;
-    let chunks = [];
-    let currentTakeUrl = null;
-    let countdownTimer = null;
-
-    function jsonp(params) {
-      return new Promise((resolve, reject) => {
-        const callback = 'neweyes_cb_' + Math.random().toString(36).slice(2);
-        window[callback] = data => {
-          delete window[callback];
-          script.remove();
-          resolve(data);
-        };
-        const url = new URL(NEWEYES_APPS_SCRIPT_URL);
-        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-        url.searchParams.set('callback', callback);
-        const script = document.createElement('script');
-        script.src = url.toString();
-        script.onerror = () => reject(new Error('Could not reach the NewEyes Google pipeline. Make sure Apps Script was updated and redeployed.'));
-        document.body.appendChild(script);
-      });
-    }
-
-    async function loadEpisodes() {
-      document.getElementById('status').textContent = 'Loading episodes from NewEyes Studio...';
-      try {
-        const res = await jsonp({ action: 'listEpisodes' });
-        if (!res.ok) throw new Error(res.error || 'Unknown Google pipeline error.');
-        const items = res.episodes || [];
-        document.getElementById('status').textContent = 'Loaded ' + items.length + ' episodes.';
-        document.getElementById('episodes').innerHTML = items.map(episodeCard).join('') || '<div class="card">No episodes found. Send one from the NewEyes GPT pipeline first.</div>';
-      } catch (err) {
-        document.getElementById('status').textContent = err.message || String(err);
-      }
-    }
-
-    function episodeCard(ep) {
-      const id = escapeHtml(ep.EpisodeID || '');
-      const title = escapeHtml(ep.Title || 'Untitled');
-      const status = escapeHtml(ep.Status || '');
-      const summary = escapeHtml(ep.Summary || '');
-      const runtime = escapeHtml(ep.EstimatedRuntime || '');
-      return `
-        <div class="card">
-          <h2>${title}</h2>
-          <p><span class="pill">${id}</span> <span class="pill">${status}</span> ${runtime ? `<span class="pill">${runtime}</span>` : ''}</p>
-          <p>${summary}</p>
-          <button class="primary" onclick="openRecorder('${escapeJs(ep.EpisodeID)}')">Start Recording</button>
-        </div>`;
-    }
-
-    async function openRecorder(episodeId) {
-      document.getElementById('recorder').classList.add('active');
-      document.getElementById('recStatus').textContent = 'Loading ' + episodeId + '...';
-      document.getElementById('prompt').textContent = 'Loading script...';
-      redoTake(false);
-      try {
-        const res = await jsonp({ action: 'getEpisodeScript', episode_id: episodeId });
-        if (!res.ok) throw new Error(res.error || 'Could not load script.');
-        selectedEpisode = res.episode;
-        document.getElementById('prompt').textContent = selectedEpisode.full_script || 'No script found.';
-        resetScroll();
-        updateWpmLabel();
-      } catch (err) {
-        document.getElementById('prompt').textContent = err.message || String(err);
-      }
-    }
-
-    function closeRecorder() {
-      running = false;
-      clearCountdown();
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-      }
-      document.getElementById('recorder').classList.remove('active');
-    }
-
-    async function startCamera() {
-      try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error('Camera recording is not supported in this browser. Try Safari/Chrome on iPhone using the HTTPS page.');
-        }
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'user',
-            width: { ideal: 1080 },
-            height: { ideal: 1920 },
-            aspectRatio: { ideal: 9 / 16 }
-          },
-          audio: true
-        });
-        document.getElementById('camera').srcObject = stream;
-        document.getElementById('recStatus').textContent = 'Camera ready · ' + getWpm() + ' WPM';
-      } catch (err) {
-        alert(err.message || String(err));
-      }
-    }
-
-    async function beginCountdownAndRecord() {
-      if (!stream) { alert('Tap Camera first.'); return; }
-      if (recorder && recorder.state === 'recording') { return; }
-      redoTake(false);
-      resetScroll();
-      await countdown(3);
-      startRecording();
-      startScrolling();
-    }
-
-    function countdown(seconds) {
-      return new Promise(resolve => {
-        clearCountdown();
-        const el = document.getElementById('countdown');
-        let remaining = seconds;
-        el.style.display = 'flex';
-        el.textContent = remaining;
-        countdownTimer = setInterval(() => {
-          remaining -= 1;
-          if (remaining > 0) {
-            el.textContent = remaining;
-          } else {
-            clearCountdown();
-            resolve();
-          }
-        }, 1000);
-      });
-    }
-
-    function clearCountdown() {
-      if (countdownTimer) clearInterval(countdownTimer);
-      countdownTimer = null;
-      const el = document.getElementById('countdown');
-      if (el) el.style.display = 'none';
-    }
-
-    function startRecording() {
-      if (!stream) { alert('Tap Camera first.'); return; }
-      chunks = [];
-      let options = {};
-      if (window.MediaRecorder && MediaRecorder.isTypeSupported('video/mp4')) {
-        options = { mimeType: 'video/mp4' };
-      } else if (window.MediaRecorder && MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-        options = { mimeType: 'video/webm;codecs=vp9' };
-      } else if (window.MediaRecorder && MediaRecorder.isTypeSupported('video/webm')) {
-        options = { mimeType: 'video/webm' };
-      }
-      try {
-        recorder = new MediaRecorder(stream, options);
-      } catch (err) {
-        alert('This browser opened the camera, but cannot record video with MediaRecorder. Try current Safari/Chrome or use the phone camera while reading the prompt.');
-        return;
-      }
-      recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-      recorder.onstop = saveTake;
-      recorder.start();
-      document.getElementById('recStatus').textContent = 'Recording · ' + getWpm() + ' WPM';
-    }
-
-    function stopRecording() {
-      if (recorder && recorder.state !== 'inactive') recorder.stop();
-      running = false;
-    }
-
-    function saveTake() {
-      const type = recorder.mimeType || 'video/webm';
-      const ext = type.includes('mp4') ? 'mp4' : 'webm';
-      const blob = new Blob(chunks, { type });
-      currentTakeUrl = URL.createObjectURL(blob);
-      const preview = document.getElementById('takePreview');
-      preview.src = currentTakeUrl;
-      preview.style.display = 'block';
-      const a = document.getElementById('downloadTake');
-      a.href = currentTakeUrl;
-      a.download = (selectedEpisode?.episode_id || 'neweyes') + '-take.' + ext;
-      a.style.display = 'block';
-      a.textContent = 'Download Take';
-      document.getElementById('recStatus').textContent = 'Take ready. Download it, then upload to Drive manually for now.';
-    }
-
-    function redoTake(showMessage = true) {
-      if (recorder && recorder.state === 'recording') recorder.stop();
-      chunks = [];
-      if (currentTakeUrl) {
-        URL.revokeObjectURL(currentTakeUrl);
-        currentTakeUrl = null;
-      }
-      const preview = document.getElementById('takePreview');
-      preview.pause();
-      preview.removeAttribute('src');
-      preview.load();
-      preview.style.display = 'none';
-      const a = document.getElementById('downloadTake');
-      a.removeAttribute('href');
-      a.style.display = 'none';
-      resetScroll();
-      if (showMessage) document.getElementById('recStatus').textContent = 'Old take deleted. Ready for redo · ' + getWpm() + ' WPM';
-    }
-
-    function toggleScroll() { running ? stopScrolling() : startScrolling(); }
-    function startScrolling() { running = true; last = null; requestAnimationFrame(tick); }
-    function stopScrolling() { running = false; }
-
-    function tick(ts) {
-      if (!running) return;
-      if (last === null) last = ts;
-      const delta = ts - last;
-      last = ts;
-      const recorderEl = document.getElementById('recorder');
-      const maxScroll = Math.max(0, recorderEl.scrollHeight - recorderEl.clientHeight);
-      const words = getWordCount();
-      const seconds = Math.max(1, (words / getWpm()) * 60);
-      const pixelsPerSecond = maxScroll / seconds;
-      recorderEl.scrollTop += pixelsPerSecond * (delta / 1000);
-      requestAnimationFrame(tick);
-    }
-
-    function resetScroll() {
-      running = false;
-      const recorderEl = document.getElementById('recorder');
-      if (recorderEl) recorderEl.scrollTop = 0;
-      window.scrollTo(0, 0);
-    }
-
-    function getWpm() {
-      const raw = Number(document.getElementById('wpm').value || 220);
-      return Math.min(400, Math.max(80, raw));
-    }
-
-    function getWordCount() {
-      const text = document.getElementById('prompt').textContent || '';
-      return Math.max(1, text.trim().split(/\s+/).filter(Boolean).length);
-    }
-
-    function updateWpmLabel() {
-      const ep = selectedEpisode ? selectedEpisode.episode_id + ' — ' + selectedEpisode.title + ' · ' : '';
-      document.getElementById('recStatus').textContent = ep + getWpm() + ' WPM';
-    }
-
-    function setFont() {
-      document.getElementById('prompt').style.fontSize = document.getElementById('font').value + 'px';
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
-    }
-
-    function escapeJs(str) {
-      return String(str ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    }
-
-    loadEpisodes();
-  </script>
+<script>
+const NEWEYES_APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxX0J_yqJaJedD0gixgKiPLBIMXS9frc3hP7UI9EKNedaCGg7ZJIgUa1SZv3-zKs3cG/exec';
+let selectedEpisode=null,running=false,last=null,stream=null,recorder=null,chunks=[],currentTakeUrl=null,currentTakeFile=null,countdownTimer=null,drawLoop=null;
+function jsonp(params){return new Promise((resolve,reject)=>{const callback='neweyes_cb_'+Math.random().toString(36).slice(2);window[callback]=data=>{delete window[callback];script.remove();resolve(data)};const url=new URL(NEWEYES_APPS_SCRIPT_URL);Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));url.searchParams.set('callback',callback);const script=document.createElement('script');script.src=url.toString();script.onerror=()=>reject(new Error('Could not reach the NewEyes Google pipeline. Make sure Apps Script was updated and redeployed.'));document.body.appendChild(script)})}
+async function loadEpisodes(){document.getElementById('status').textContent='Loading episodes from NewEyes Studio...';try{const res=await jsonp({action:'listEpisodes'});if(!res.ok)throw new Error(res.error||'Unknown Google pipeline error.');const items=res.episodes||[];document.getElementById('status').textContent='Loaded '+items.length+' episodes.';document.getElementById('episodes').innerHTML=items.map(episodeCard).join('')||'<div class="card">No episodes found. Send one from the NewEyes GPT pipeline first.</div>'}catch(err){document.getElementById('status').textContent=err.message||String(err)}}
+function episodeCard(ep){const id=escapeHtml(ep.EpisodeID||''),title=escapeHtml(ep.Title||'Untitled'),status=escapeHtml(ep.Status||''),summary=escapeHtml(ep.Summary||''),runtime=escapeHtml(ep.EstimatedRuntime||'');return `<div class="card"><h2>${title}</h2><p><span class="pill">${id}</span> <span class="pill">${status}</span> ${runtime?`<span class="pill">${runtime}</span>`:''}</p><p>${summary}</p><button class="primary" onclick="openRecorder('${escapeJs(ep.EpisodeID)}')">Start Recording</button></div>`}
+async function openRecorder(episodeId){document.getElementById('recorder').classList.add('active');document.getElementById('recStatus').textContent='Loading '+episodeId+'...';document.getElementById('prompt').textContent='Loading script...';redoTake(false);try{const res=await jsonp({action:'getEpisodeScript',episode_id:episodeId});if(!res.ok)throw new Error(res.error||'Could not load script.');selectedEpisode=res.episode;document.getElementById('prompt').textContent=selectedEpisode.full_script||'No script found.';resetScroll();updateWpmLabel()}catch(err){document.getElementById('prompt').textContent=err.message||String(err)}}
+function closeRecorder(){running=false;clearCountdown();if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}cancelAnimationFrame(drawLoop);document.getElementById('recorder').classList.remove('active')}
+async function startCamera(){try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Camera recording is not supported in this browser.');stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1080},height:{ideal:1920},aspectRatio:{ideal:9/16}},audio:true});const vid=document.getElementById('sourceVideo');vid.srcObject=stream;await vid.play();drawCamera();document.getElementById('recStatus').textContent='Camera ready · '+getWpm()+' WPM'}catch(err){alert(err.message||String(err))}}
+function drawCamera(){const canvas=document.getElementById('cameraCanvas'),ctx=canvas.getContext('2d'),vid=document.getElementById('sourceVideo');function draw(){const cw=canvas.width,ch=canvas.height,vw=vid.videoWidth||1080,vh=vid.videoHeight||1920;ctx.save();ctx.clearRect(0,0,cw,ch);ctx.translate(cw,0);ctx.scale(-1,1);const scale=Math.max(cw/vw,ch/vh),sw=cw/scale,sh=ch/scale,sx=(vw-sw)/2,sy=(vh-sh)/2;try{ctx.drawImage(vid,sx,sy,sw,sh,0,0,cw,ch)}catch(e){}ctx.restore();drawLoop=requestAnimationFrame(draw)}draw()}
+async function beginCountdownAndRecord(){if(!stream){alert('Tap Camera first.');return}if(recorder&&recorder.state==='recording')return;redoTake(false);resetScroll();await countdown(3);startRecording();startScrolling()}
+function countdown(seconds){return new Promise(resolve=>{clearCountdown();const el=document.getElementById('countdown');let remaining=seconds;el.style.display='flex';el.textContent=remaining;countdownTimer=setInterval(()=>{remaining-=1;if(remaining>0)el.textContent=remaining;else{clearCountdown();resolve()}},1000)})}
+function clearCountdown(){if(countdownTimer)clearInterval(countdownTimer);countdownTimer=null;const el=document.getElementById('countdown');if(el)el.style.display='none'}
+function startRecording(){if(!stream){alert('Tap Camera first.');return}chunks=[];const canvas=document.getElementById('cameraCanvas');const canvasStream=canvas.captureStream(30);stream.getAudioTracks().forEach(t=>canvasStream.addTrack(t));let options={};if(window.MediaRecorder&&MediaRecorder.isTypeSupported('video/mp4'))options={mimeType:'video/mp4'};else if(window.MediaRecorder&&MediaRecorder.isTypeSupported('video/webm;codecs=vp9'))options={mimeType:'video/webm;codecs=vp9'};else if(window.MediaRecorder&&MediaRecorder.isTypeSupported('video/webm'))options={mimeType:'video/webm'};try{recorder=new MediaRecorder(canvasStream,options)}catch(err){alert('This browser opened the camera, but cannot record video with MediaRecorder.');return}recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};recorder.onstop=saveTake;recorder.start();document.getElementById('recStatus').textContent='Recording · '+getWpm()+' WPM'}
+function stopRecording(){if(recorder&&recorder.state!=='inactive')recorder.stop();running=false}
+function saveTake(){const type=recorder.mimeType||'video/webm',ext=type.includes('mp4')?'mp4':'webm',blob=new Blob(chunks,{type});currentTakeUrl=URL.createObjectURL(blob);currentTakeFile=new File([blob],(selectedEpisode?.episode_id||'neweyes')+'-take.'+ext,{type});const preview=document.getElementById('takePreview');preview.src=currentTakeUrl;preview.style.display='block';const a=document.getElementById('downloadTake');a.href=currentTakeUrl;a.download=currentTakeFile.name;a.style.display='inline-block';a.textContent='Download Take';document.getElementById('recStatus').textContent='Take ready. Share/Upload opens your phone share sheet for Drive.'}
+function redoTake(showMessage=true){if(recorder&&recorder.state==='recording')recorder.stop();chunks=[];currentTakeFile=null;if(currentTakeUrl){URL.revokeObjectURL(currentTakeUrl);currentTakeUrl=null}const preview=document.getElementById('takePreview');preview.pause();preview.removeAttribute('src');preview.load();preview.style.display='none';const a=document.getElementById('downloadTake');a.removeAttribute('href');a.style.display='none';resetScroll();if(showMessage)document.getElementById('recStatus').textContent='Old take deleted. Ready for redo · '+getWpm()+' WPM'}
+async function shareTake(){if(!currentTakeFile){alert('Record a take first.');return}if(navigator.canShare&&navigator.canShare({files:[currentTakeFile]})){await navigator.share({files:[currentTakeFile],title:currentTakeFile.name,text:'NewEyes Studio take'});return}alert('Sharing files is not supported here. Use Download Take, then upload to Drive.')}
+function toggleScroll(){running?stopScrolling():startScrolling()}function startScrolling(){running=true;last=null;requestAnimationFrame(tick)}function stopScrolling(){running=false}
+function tick(ts){if(!running)return;if(last===null)last=ts;const delta=ts-last;last=ts;const el=document.getElementById('recorder'),maxScroll=Math.max(0,el.scrollHeight-el.clientHeight),seconds=Math.max(1,(getWordCount()/getWpm())*60),pps=maxScroll/seconds;el.scrollTop+=pps*(delta/1000);requestAnimationFrame(tick)}
+function resetScroll(){running=false;const el=document.getElementById('recorder');if(el)el.scrollTop=0;window.scrollTo(0,0)}
+function getWpm(){return Number(document.getElementById('wpm').value||220)}function getWordCount(){const text=document.getElementById('prompt').textContent||'';return Math.max(1,text.trim().split(/\s+/).filter(Boolean).length)}function updateWpmLabel(){document.getElementById('wpmValue').textContent=getWpm();const ep=selectedEpisode?selectedEpisode.episode_id+' — '+selectedEpisode.title+' · ':'';document.getElementById('recStatus').textContent=ep+getWpm()+' WPM'}
+function setFont(){document.getElementById('prompt').style.fontSize=document.getElementById('font').value+'px'}function escapeHtml(str){return String(str??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function escapeJs(str){return String(str??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+loadEpisodes();
+</script>
 </body>
 </html>
