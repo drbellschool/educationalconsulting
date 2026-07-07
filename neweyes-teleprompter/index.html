@@ -10,7 +10,6 @@
     header{padding:18px 16px 8px} h1{margin:0;font-size:24px} h2{margin:0 0 8px}.muted{color:var(--muted);font-size:14px}
     .card{background:var(--card);color:var(--ink);border-radius:16px;padding:16px;margin:12px 16px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     button{border:0;border-radius:14px;padding:16px 20px;font-size:20px;font-weight:800;cursor:pointer;min-height:58px}button.primary{background:var(--accent);color:#111}button.danger{background:var(--danger);color:#fff}button.good{background:var(--good);color:#07150b}button.secondary{background:#f2f2f2;color:#111}.pill{display:inline-block;background:#eee;color:#111;padding:4px 8px;border-radius:999px;font-size:12px}#status{padding:0 16px 10px;color:#ddd}
-
     #recorder{position:fixed;inset:0;height:100dvh;width:100vw;background:#000;display:none;overflow-y:auto;z-index:100;-webkit-overflow-scrolling:touch}#recorder.active{display:block}
     #sourceVideo{display:none}#cameraCanvas{position:fixed;inset:0;width:100vw;height:100dvh;background:#000}.recordingFrame{position:fixed;inset:0;pointer-events:none;border:0 solid transparent}
     #shade{position:fixed;inset:0;background:rgba(0,0,0,.34);pointer-events:none}#prompt{position:relative;z-index:110;margin-top:74px;margin-left:7vw;margin-right:7vw;padding-bottom:128vh;font-size:52px;line-height:1.45;white-space:pre-wrap;text-shadow:0 3px 12px #000}
@@ -24,7 +23,6 @@
 <body>
   <header><h1>NewEyes TikTok Teleprompter</h1><div class="muted">Reads your Google Sheet pipeline and records locally on your phone.</div></header>
   <div id="status">Loading episodes from NewEyes Studio...</div><div class="row" style="padding:0 16px 10px"><button class="primary" onclick="loadEpisodes()">Refresh Episodes</button></div><main id="episodes"></main>
-
   <section id="recorder">
     <video id="sourceVideo" autoplay playsinline muted></video><canvas id="cameraCanvas" width="1080" height="1920"></canvas><div id="shade"></div><div id="countdown">3</div>
     <div id="prompt">Select an episode.</div><video id="takePreview" controls playsinline></video>
@@ -36,7 +34,6 @@
       <a id="downloadTake">Download Take</a><button class="secondary" onclick="shareTake()">Share/Upload</button>
     </div>
   </section>
-
 <script>
 const NEWEYES_APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxX0J_yqJaJedD0gixgKiPLBIMXS9frc3hP7UI9EKNedaCGg7ZJIgUa1SZv3-zKs3cG/exec';
 let selectedEpisode=null,running=false,last=null,stream=null,recorder=null,chunks=[],currentTakeUrl=null,currentTakeFile=null,countdownTimer=null,drawLoop=null;
@@ -45,8 +42,8 @@ async function loadEpisodes(){document.getElementById('status').textContent='Loa
 function episodeCard(ep){const id=escapeHtml(ep.EpisodeID||''),title=escapeHtml(ep.Title||'Untitled'),status=escapeHtml(ep.Status||''),summary=escapeHtml(ep.Summary||''),runtime=escapeHtml(ep.EstimatedRuntime||'');return `<div class="card"><h2>${title}</h2><p><span class="pill">${id}</span> <span class="pill">${status}</span> ${runtime?`<span class="pill">${runtime}</span>`:''}</p><p>${summary}</p><button class="primary" onclick="openRecorder('${escapeJs(ep.EpisodeID)}')">Start Recording</button></div>`}
 async function openRecorder(episodeId){document.getElementById('recorder').classList.add('active');document.getElementById('recStatus').textContent='Loading '+episodeId+'...';document.getElementById('prompt').textContent='Loading script...';redoTake(false);try{const res=await jsonp({action:'getEpisodeScript',episode_id:episodeId});if(!res.ok)throw new Error(res.error||'Could not load script.');selectedEpisode=res.episode;document.getElementById('prompt').textContent=selectedEpisode.full_script||'No script found.';resetScroll();updateWpmLabel()}catch(err){document.getElementById('prompt').textContent=err.message||String(err)}}
 function closeRecorder(){running=false;clearCountdown();if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}cancelAnimationFrame(drawLoop);document.getElementById('recorder').classList.remove('active')}
-async function startCamera(){try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Camera recording is not supported in this browser.');stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1080},height:{ideal:1920},aspectRatio:{ideal:9/16}},audio:true});const vid=document.getElementById('sourceVideo');vid.srcObject=stream;await vid.play();drawCamera();document.getElementById('recStatus').textContent='Camera ready · '+getWpm()+' WPM'}catch(err){alert(err.message||String(err))}}
-function drawCamera(){const canvas=document.getElementById('cameraCanvas'),ctx=canvas.getContext('2d'),vid=document.getElementById('sourceVideo');function draw(){const cw=canvas.width,ch=canvas.height,vw=vid.videoWidth||1080,vh=vid.videoHeight||1920;ctx.save();ctx.clearRect(0,0,cw,ch);ctx.translate(cw,0);ctx.scale(-1,1);const scale=Math.max(cw/vw,ch/vh),sw=cw/scale,sh=ch/scale,sx=(vw-sw)/2,sy=(vh-sh)/2;try{ctx.drawImage(vid,sx,sy,sw,sh,0,0,cw,ch)}catch(e){}ctx.restore();drawLoop=requestAnimationFrame(draw)}draw()}
+async function startCamera(){try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Camera recording is not supported in this browser.');stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1080},height:{ideal:1920}},audio:true});const vid=document.getElementById('sourceVideo');vid.srcObject=stream;await vid.play();drawCamera();document.getElementById('recStatus').textContent='Camera ready · normal framing · '+getWpm()+' WPM'}catch(err){alert(err.message||String(err))}}
+function drawCamera(){const canvas=document.getElementById('cameraCanvas'),ctx=canvas.getContext('2d'),vid=document.getElementById('sourceVideo');function draw(){const cw=canvas.width,ch=canvas.height,vw=vid.videoWidth||1080,vh=vid.videoHeight||1920;ctx.save();ctx.clearRect(0,0,cw,ch);ctx.fillStyle='#000';ctx.fillRect(0,0,cw,ch);ctx.translate(cw,0);ctx.scale(-1,1);const scale=Math.min(cw/vw,ch/vh),dw=vw*scale,dh=vh*scale,dx=(cw-dw)/2,dy=(ch-dh)/2;try{ctx.drawImage(vid,0,0,vw,vh,dx,dy,dw,dh)}catch(e){}ctx.restore();drawLoop=requestAnimationFrame(draw)}draw()}
 async function beginCountdownAndRecord(){if(!stream){alert('Tap Camera first.');return}if(recorder&&recorder.state==='recording')return;redoTake(false);resetScroll();await countdown(3);startRecording();startScrolling()}
 function countdown(seconds){return new Promise(resolve=>{clearCountdown();const el=document.getElementById('countdown');let remaining=seconds;el.style.display='flex';el.textContent=remaining;countdownTimer=setInterval(()=>{remaining-=1;if(remaining>0)el.textContent=remaining;else{clearCountdown();resolve()}},1000)})}
 function clearCountdown(){if(countdownTimer)clearInterval(countdownTimer);countdownTimer=null;const el=document.getElementById('countdown');if(el)el.style.display='none'}
