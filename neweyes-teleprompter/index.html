@@ -15,7 +15,7 @@
     .muted { color:var(--muted); font-size:14px; }
     .card { background:var(--card); color:var(--ink); border-radius:16px; padding:16px; margin:12px 16px; }
     .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    button { border:0; border-radius:14px; padding:16px 20px; font-size:20px; font-weight:800; cursor:pointer; min-height:56px; }
+    button { border:0; border-radius:14px; padding:16px 20px; font-size:20px; font-weight:800; cursor:pointer; min-height:58px; }
     button.primary { background:var(--accent); color:#111; }
     button.danger { background:var(--danger); color:#fff; }
     button.good { background:var(--good); color:#07150b; }
@@ -23,23 +23,24 @@
     .pill { display:inline-block; background:#eee; color:#111; padding:4px 8px; border-radius:999px; font-size:12px; }
     #status { padding:0 16px 10px; color:#ddd; }
 
-    #recorder { position:fixed; inset:0; background:#000; display:none; overflow:auto; z-index:100; }
+    #recorder { position:fixed; inset:0; height:100dvh; width:100vw; background:#000; display:none; overflow-y:auto; z-index:100; -webkit-overflow-scrolling:touch; }
     #recorder.active { display:block; }
-    #camera { position:fixed; inset:0; width:100vw; height:100vh; object-fit:cover; transform:scaleX(-1); background:#000; }
+    #camera { position:fixed; inset:0; width:100vw; height:100dvh; object-fit:cover; transform:scaleX(-1); background:#000; }
     #shade { position:fixed; inset:0; background:rgba(0,0,0,.36); pointer-events:none; }
     #topbar { position:fixed; top:0; left:0; right:0; z-index:120; padding:10px; padding-top:calc(10px + env(safe-area-inset-top)); background:rgba(0,0,0,.72); display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    #prompt { position:absolute; z-index:110; top:188px; left:7vw; right:7vw; padding-bottom:100vh; font-size:52px; line-height:1.45; white-space:pre-wrap; text-shadow:0 3px 12px #000; }
+    #prompt { position:relative; z-index:110; margin-top:230px; margin-left:7vw; margin-right:7vw; padding-bottom:120vh; font-size:52px; line-height:1.45; white-space:pre-wrap; text-shadow:0 3px 12px #000; }
     label { font-size:15px; font-weight:700; }
-    input[type=range] { width:120px; height:34px; }
+    input[type=range] { width:100px; height:34px; }
+    input[type=number] { width:84px; font-size:20px; font-weight:800; padding:10px; border-radius:10px; border:0; }
     #recStatus { font-size:16px; font-weight:700; opacity:.95; }
     #takePreview { position:fixed; right:10px; bottom:10px; z-index:130; width:170px; max-width:45vw; display:none; border:2px solid white; background:#000; }
     #downloadTake { position:fixed; left:10px; bottom:10px; z-index:131; display:none; background:#fff; color:#111; padding:14px 16px; border-radius:14px; font-weight:800; text-decoration:none; font-size:18px; }
     #countdown { position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.48); font-size:32vw; font-weight:900; text-shadow:0 4px 20px #000; }
-    .tiny { font-size:12px; opacity:.8; }
     @media (max-width:600px) {
-      button { font-size:18px; padding:14px 16px; min-height:54px; }
-      #prompt { top:210px; font-size:50px; }
-      input[type=range] { width:100px; }
+      button { font-size:18px; padding:14px 16px; min-height:56px; }
+      #prompt { margin-top:245px; font-size:50px; }
+      input[type=range] { width:92px; }
+      input[type=number] { width:78px; }
     }
   </style>
 </head>
@@ -68,7 +69,7 @@
       <button class="secondary" onclick="redoTake()">Redo</button>
       <button class="good" onclick="toggleScroll()">Scroll</button>
       <button class="secondary" onclick="resetScroll()">Reset</button>
-      <label>Speed <input id="speed" type="range" min="0" max="7" step=".25" value="1.75"></label>
+      <label>WPM <input id="wpm" type="number" min="80" max="400" step="5" value="220" onchange="updateWpmLabel()"></label>
       <label>Font <input id="font" type="range" min="28" max="84" step="2" value="52" oninput="setFont()"></label>
       <span id="recStatus">Ready</span>
     </div>
@@ -146,8 +147,8 @@
         if (!res.ok) throw new Error(res.error || 'Could not load script.');
         selectedEpisode = res.episode;
         document.getElementById('prompt').textContent = selectedEpisode.full_script || 'No script found.';
-        document.getElementById('recStatus').textContent = selectedEpisode.episode_id + ' — ' + selectedEpisode.title;
         resetScroll();
+        updateWpmLabel();
       } catch (err) {
         document.getElementById('prompt').textContent = err.message || String(err);
       }
@@ -168,9 +169,17 @@
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           throw new Error('Camera recording is not supported in this browser. Try Safari/Chrome on iPhone using the HTTPS page.');
         }
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1080 },
+            height: { ideal: 1920 },
+            aspectRatio: { ideal: 9 / 16 }
+          },
+          audio: true
+        });
         document.getElementById('camera').srcObject = stream;
-        document.getElementById('recStatus').textContent = 'Camera ready';
+        document.getElementById('recStatus').textContent = 'Camera ready · ' + getWpm() + ' WPM';
       } catch (err) {
         alert(err.message || String(err));
       }
@@ -215,7 +224,6 @@
     function startRecording() {
       if (!stream) { alert('Tap Camera first.'); return; }
       chunks = [];
-
       let options = {};
       if (window.MediaRecorder && MediaRecorder.isTypeSupported('video/mp4')) {
         options = { mimeType: 'video/mp4' };
@@ -224,18 +232,16 @@
       } else if (window.MediaRecorder && MediaRecorder.isTypeSupported('video/webm')) {
         options = { mimeType: 'video/webm' };
       }
-
       try {
         recorder = new MediaRecorder(stream, options);
       } catch (err) {
         alert('This browser opened the camera, but cannot record video with MediaRecorder. Try current Safari/Chrome or use the phone camera while reading the prompt.');
         return;
       }
-
       recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
       recorder.onstop = saveTake;
       recorder.start();
-      document.getElementById('recStatus').textContent = 'Recording...';
+      document.getElementById('recStatus').textContent = 'Recording · ' + getWpm() + ' WPM';
     }
 
     function stopRecording() {
@@ -251,13 +257,12 @@
       const preview = document.getElementById('takePreview');
       preview.src = currentTakeUrl;
       preview.style.display = 'block';
-
       const a = document.getElementById('downloadTake');
       a.href = currentTakeUrl;
       a.download = (selectedEpisode?.episode_id || 'neweyes') + '-take.' + ext;
       a.style.display = 'block';
       a.textContent = 'Download Take';
-      document.getElementById('recStatus').textContent = 'Take ready. Preview, download, or Redo.';
+      document.getElementById('recStatus').textContent = 'Take ready. Download it, then upload to Drive manually for now.';
     }
 
     function redoTake(showMessage = true) {
@@ -276,29 +281,24 @@
       a.removeAttribute('href');
       a.style.display = 'none';
       resetScroll();
-      if (showMessage) document.getElementById('recStatus').textContent = 'Old take deleted. Ready for redo.';
+      if (showMessage) document.getElementById('recStatus').textContent = 'Old take deleted. Ready for redo · ' + getWpm() + ' WPM';
     }
 
-    function toggleScroll() {
-      running ? stopScrolling() : startScrolling();
-    }
-
-    function startScrolling() {
-      running = true;
-      last = null;
-      requestAnimationFrame(tick);
-    }
-
-    function stopScrolling() {
-      running = false;
-    }
+    function toggleScroll() { running ? stopScrolling() : startScrolling(); }
+    function startScrolling() { running = true; last = null; requestAnimationFrame(tick); }
+    function stopScrolling() { running = false; }
 
     function tick(ts) {
       if (!running) return;
       if (last === null) last = ts;
       const delta = ts - last;
       last = ts;
-      window.scrollBy(0, Number(document.getElementById('speed').value) * delta / 16);
+      const recorderEl = document.getElementById('recorder');
+      const maxScroll = Math.max(0, recorderEl.scrollHeight - recorderEl.clientHeight);
+      const words = getWordCount();
+      const seconds = Math.max(1, (words / getWpm()) * 60);
+      const pixelsPerSecond = maxScroll / seconds;
+      recorderEl.scrollTop += pixelsPerSecond * (delta / 1000);
       requestAnimationFrame(tick);
     }
 
@@ -307,6 +307,21 @@
       const recorderEl = document.getElementById('recorder');
       if (recorderEl) recorderEl.scrollTop = 0;
       window.scrollTo(0, 0);
+    }
+
+    function getWpm() {
+      const raw = Number(document.getElementById('wpm').value || 220);
+      return Math.min(400, Math.max(80, raw));
+    }
+
+    function getWordCount() {
+      const text = document.getElementById('prompt').textContent || '';
+      return Math.max(1, text.trim().split(/\s+/).filter(Boolean).length);
+    }
+
+    function updateWpmLabel() {
+      const ep = selectedEpisode ? selectedEpisode.episode_id + ' — ' + selectedEpisode.title + ' · ' : '';
+      document.getElementById('recStatus').textContent = ep + getWpm() + ' WPM';
     }
 
     function setFont() {
