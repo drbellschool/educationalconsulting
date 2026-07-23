@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-22T14:22:50.515Z",
+  "generatedAt": "2026-07-23T14:32:41.979Z",
   "criteria": {
     "tripName": "Bell Family Disney World Watch",
     "destination": "Walt Disney World, Orlando, Florida",
@@ -129,7 +129,7 @@
       "summary": "Checked Walt Disney World Special Offers. Review snippets and prices before treating anything as bookable.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-07-22T14:22:23.108Z"
+      "checkedAt": "2026-07-23T14:32:20.104Z"
     },
     {
       "sourceId": "wdw-tickets",
@@ -143,7 +143,7 @@
       "snippets": [
         "y World and will be redirected to Hong Kong website to purchase Hong Kong Disneyland Park Tickets from Hong Kong International Theme Parks Limited. FPO: By clicking Continue You are going to another Disney site and a different privacy policy, terms of use and/or sales terms and conditions may apply. Do you wa"
       ],
-      "checkedAt": "2026-07-22T14:22:23.521Z"
+      "checkedAt": "2026-07-23T14:32:20.543Z"
     },
     {
       "sourceId": "undercover-tourist",
@@ -169,7 +169,7 @@
         "mpException(e)} })(this.gbar_); // Google Inc. ExploreFlightsHotelsVacation rentalsFlight DealsTracked flight pricesTracked hotel pricesChange languageChange currencyChange locationFeedbackHelpwindow.wiz_progress&&window.wiz_progress();window.wiz_tick&&window.wiz_tick('eixcv');Time for an upgradeLooks like yo",
         "\"}; Skip to main contentAccessibility feedbackChange appearanceSign inExploreFlightsHotelsVacation rentalsthis.gbar_=this.gbar_||{};(function(_){var window=this; try{ _.oe=function(a,b,c){if(!a.j)if(c instanceof Array){c=_.C(c);for(var d=c.next();!d.done;d=c.next())_.oe(a,b,d.value)}else{d=(0,_.E)(a.D,a,b);va"
       ],
-      "checkedAt": "2026-07-22T14:22:23.438Z"
+      "checkedAt": "2026-07-23T14:32:20.508Z"
     },
     {
       "sourceId": "southwest",
@@ -181,7 +181,7 @@
       "summary": "Checked Southwest Low Fare Calendar. Review snippets and prices before treating anything as bookable.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-07-22T14:22:23.067Z"
+      "checkedAt": "2026-07-23T14:32:20.302Z"
     }
   ],
   "deals": [
@@ -264,7 +264,7 @@
       "sourceUrl": "https://disneyworld.disney.go.com/special-offers/"
     },
     {
-      "id": "wdw-special-offers-2026-07-22",
+      "id": "wdw-special-offers-2026-07-23",
       "sourceId": "wdw-special-offers",
       "sourceName": "Walt Disney World Special Offers",
       "sourceUrl": "https://disneyworld.disney.go.com/special-offers/",
@@ -280,12 +280,12 @@
       "action": "Open this source and verify whether the price signal applies to your dates and family size.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-07-22T14:22:23.108Z",
+      "checkedAt": "2026-07-23T14:32:20.104Z",
       "score": 57,
       "label": "Maybe"
     },
     {
-      "id": "wdw-tickets-2026-07-22",
+      "id": "wdw-tickets-2026-07-23",
       "sourceId": "wdw-tickets",
       "sourceName": "Walt Disney World Tickets",
       "sourceUrl": "https://disneyworld.disney.go.com/admission/tickets/",
@@ -303,12 +303,12 @@
       "snippets": [
         "y World and will be redirected to Hong Kong website to purchase Hong Kong Disneyland Park Tickets from Hong Kong International Theme Parks Limited. FPO: By clicking Continue You are going to another Disney site and a different privacy policy, terms of use and/or sales terms and conditions may apply. Do you wa"
       ],
-      "checkedAt": "2026-07-22T14:22:23.521Z",
+      "checkedAt": "2026-07-23T14:32:20.543Z",
       "score": 57,
       "label": "Maybe"
     },
     {
-      "id": "google-flights-dfw-mco-2026-07-22",
+      "id": "google-flights-dfw-mco-2026-07-23",
       "sourceId": "google-flights-dfw-mco",
       "sourceName": "Google Flights DFW to Orlando",
       "sourceUrl": "https://www.google.com/travel/flights",
@@ -328,12 +328,12 @@
         "mpException(e)} })(this.gbar_); // Google Inc. ExploreFlightsHotelsVacation rentalsFlight DealsTracked flight pricesTracked hotel pricesChange languageChange currencyChange locationFeedbackHelpwindow.wiz_progress&&window.wiz_progress();window.wiz_tick&&window.wiz_tick('eixcv');Time for an upgradeLooks like yo",
         "\"}; Skip to main contentAccessibility feedbackChange appearanceSign inExploreFlightsHotelsVacation rentalsthis.gbar_=this.gbar_||{};(function(_){var window=this; try{ _.oe=function(a,b,c){if(!a.j)if(c instanceof Array){c=_.C(c);for(var d=c.next();!d.done;d=c.next())_.oe(a,b,d.value)}else{d=(0,_.E)(a.D,a,b);va"
       ],
-      "checkedAt": "2026-07-22T14:22:23.438Z",
+      "checkedAt": "2026-07-23T14:32:20.508Z",
       "score": 56,
       "label": "Maybe"
     },
     {
-      "id": "southwest-2026-07-22",
+      "id": "southwest-2026-07-23",
       "sourceId": "southwest",
       "sourceName": "Southwest Low Fare Calendar",
       "sourceUrl": "https://www.southwest.com/air/low-fare-calendar/",
@@ -349,12 +349,12 @@
       "action": "Open this source and verify whether the price signal applies to your dates and family size.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-07-22T14:22:23.067Z",
+      "checkedAt": "2026-07-23T14:32:20.302Z",
       "score": 56,
       "label": "Maybe"
     },
     {
-      "id": "undercover-tourist-2026-07-22",
+      "id": "undercover-tourist-2026-07-23",
       "sourceId": "undercover-tourist",
       "sourceName": "Undercover Tourist Disney World Tickets",
       "sourceUrl": "https://www.undercovertourist.com/orlando/walt-disney-world-resort/",
@@ -370,7 +370,7 @@
       "action": "Open manually; this source could not be checked automatically.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-07-22T14:22:23.521Z",
+      "checkedAt": "2026-07-23T14:32:20.543Z",
       "score": 52,
       "label": "Pass for now"
     }
