@@ -1,89 +1,61 @@
-/* GoatBot plain-language dashboard refresh.
-   Loaded after app.js and market-history-loader.js. Overrides dashboard and market pages only. */
+/* GoatBot plain-language dashboard refresh v2.
+   Overrides dashboard and market pages only. No goat jargon unless explained. */
 (function(){
-  function money2(n){return '$'+Number(n||0).toLocaleString(undefined,{maximumFractionDigits:0});}
-  function safeNum(n){return Number(n||0);}
-  function shortName(name){
-    return String(name||'').replace('Livestock Auction - Sheep and Goat Sale','Livestock').replace('Sheep/Goat','Goat').replace('Producers Auction Yards','Producers').replace('Stockyards','Stockyards').trim();
+  const money=n=>'$'+Number(n||0).toLocaleString(undefined,{maximumFractionDigits:0});
+  const num=n=>Number(n||0);
+  const short=n=>String(n||'').replace('Livestock Auction - Sheep and Goat Sale','Livestock').replace('Sheep/Goat','Goat').replace('Producers Auction Yards','Producers').replace('Stockyards','Stockyards').replace('Missouri Weekly Sheep/Goat Auction Summary','Missouri Weekly').trim();
+  const active=db=>(typeof activeGoats==='function')?activeGoats(db):(db.goats||[]).filter(g=>g.status!=='sold'&&g.status!=='dead');
+  const allRows=db=>((typeof marketRows==='function')?marketRows(db):(db.markets||[]).map(m=>({id:m.id,name:m.name,q2:(m.q2&&m.q2[1])||0,q1:(m.q1&&m.q1[1])||0,spread:((m.q1&&m.q1[1])||0)-((m.q2&&m.q2[1])||0)}))).map(r=>Object.assign({},r,{buy:num(r.q2),sell:num(r.q1),spread:num(r.q1)-num(r.q2)}));
+  const buyMarkets=db=>allRows(db).filter(r=>r.buy>0).sort((a,b)=>a.buy-b.buy);
+  const sellMarkets=db=>allRows(db).filter(r=>r.sell>0).sort((a,b)=>b.sell-a.sell);
+  function bestRoutes(db){
+    const buys=buyMarkets(db), sells=sellMarkets(db), out=[];
+    buys.slice(0,7).forEach(b=>sells.slice(0,7).forEach(s=>{
+      const gap=s.sell-b.buy;
+      if(gap>0) out.push({buy:b,sell:s,gap,route:`${short(b.name||b.id)} → ${short(s.name||s.id)}`});
+    }));
+    return out.sort((a,b)=>b.gap-a.gap).slice(0,8);
   }
-  function active(db){return (typeof activeGoats==='function')?activeGoats(db):(db.goats||[]).filter(g=>g.status!=='sold'&&g.status!=='dead');}
-  function rows(db){return (typeof marketRows==='function')?marketRows(db):(db.markets||[]).map(m=>({id:m.id,name:m.name,q2:(m.q2&&m.q2[1])||0,q1:(m.q1&&m.q1[1])||0,spread:((m.q1&&m.q1[1])||0)-((m.q2&&m.q2[1])||0)}));}
-  function spreadStatus(r){
-    if(safeNum(r.q2)<=0)return {label:'No buy price',cls:'watch',plain:'The starting price is missing. Do not use this market for buy math yet.'};
-    if(safeNum(r.q1)<=0)return {label:'No sell price',cls:'avoid',plain:'The finished-goat price is missing. Do not use this market to sell yet.'};
-    if(r.spread>=90)return {label:'Best buy/sell gap',cls:'best',plain:'There is enough room between buying young and selling heavier to make this worth studying.'};
-    if(r.spread>=40)return {label:'Good profit window',cls:'best',plain:'There may be room for profit after feed, health, and hauling costs.'};
-    if(r.spread>=15)return {label:'Small margin',cls:'watch',plain:'Possible profit, but costs can eat this fast.'};
-    if(r.spread>=0)return {label:'Tiny margin',cls:'watch',plain:'Too thin unless the goats are very cheap and close by.'};
-    return {label:'Avoid',cls:'avoid',plain:'Finished goats are not paying enough above young-goat price here.'};
+  function decision(gap){
+    if(gap>=120)return ['Green light to study','best','Big room before feed, medicine, auction fees, and fuel. Still inspect the goats.'];
+    if(gap>=70)return ['Good possible flip','best','Enough room to investigate if the goats are healthy and close enough.'];
+    if(gap>=35)return ['Thin but possible','watch','Small window. One vet bill, death loss, or long haul can eat this.'];
+    if(gap>0)return ['Too tight','watch','Not enough cushion unless the goats are unusually cheap.'];
+    return ['Do not buy','avoid','No profit room.'];
   }
-  function buyRows(db){
-    return rows(db).filter(r=>safeNum(r.q2)>0).sort((a,b)=>safeNum(a.q2)-safeNum(b.q2)).slice(0,5);
+  function table(headers,rows){return `<div class="gb-table"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;}
+  function sourceCard(db){
+    const source=db.marketDataSource==='usda_price_history'?'USDA market history is connected':'Using fallback prices';
+    const rows=(db.marketHistory||[]).reduce((a,r)=>a+num(r.count),0) || ((db.usda_price_history||[]).length);
+    return `<section class="gb-source"><b>${source}</b><span>${rows?rows+' price rows loaded':'No price history rows found yet'} • Dashboard translates market prices into plain buy/sell decisions.</span></section>`;
   }
-  function sellRows(db){
-    return rows(db).filter(r=>safeNum(r.q1)>0).sort((a,b)=>safeNum(b.q1)-safeNum(a.q1)).slice(0,5);
+  function hero(db){
+    const routes=bestRoutes(db), route=routes[0], buys=buyMarkets(db), sells=sellMarkets(db), act=active(db), cap=(db.settings&&db.settings.capacity)||40;
+    return `<section class="gb-hero"><div class="gb-hero-copy"><h1>Rustic Root Farms GoatBot</h1><p>Buy young. Grow smart. Sell heavier.</p><small>No acronyms. No guessing. Just: where to buy, where to sell, and whether the gap is worth the risk.</small></div><div class="gb-hero-goats">🐐 🐐 🐐</div></section><section class="gb-tiles"><div class="gb-tile buy"><b>Buy young here</b><strong>${buys[0]?short(buys[0].name||buys[0].id):'Waiting on data'}</strong><span>${buys[0]?money(buys[0].buy)+' per 100 lb young goats':'Need young-goat price'}</span></div><div class="gb-tile sell"><b>Sell heavier here</b><strong>${sells[0]?short(sells[0].name||sells[0].id):'Waiting on data'}</strong><span>${sells[0]?money(sells[0].sell)+' per 100 lb heavier goats':'Need sell price'}</span></div><div class="gb-tile profit"><b>Best visible flip gap</b><strong>${route?'+'+money(route.gap):'$0'}</strong><span>${route?route.route:'Need buy and sell prices'}</span></div><div class="gb-tile herd"><b>Herd room</b><strong>${act.length} of ${cap} goats</strong><span>${cap-act.length} open spaces for bargains</span></div></section>`;
   }
-  function opportunityRows(db){
-    return rows(db).map(r=>Object.assign({},r,{status:spreadStatus(r)})).sort((a,b)=>safeNum(b.spread)-safeNum(a.spread));
+  function explainer(){return `<section class="gb-explain"><div><h2>What am I trying to do?</h2><p><b>Buy young goats cheap.</b> Feed and care for them until they are heavier. Then <b>sell them into the market paying more for heavier goats.</b></p><div class="gb-formula">Profit = sell money − buy cost − feed − medicine − auction fees − hauling</div></div><div class="gb-signals"><div><i class="green"></i><b>Green</b><span>Worth studying today.</span></div><div><i class="yellow"></i><b>Yellow</b><span>Possible, but costs can erase it.</span></div><div><i class="red"></i><b>Red</b><span>Do not buy for a flip.</span></div></div></section>`;}
+  function routeTable(db){
+    const rs=bestRoutes(db);
+    return `<section class="gb-card gb-main"><h2>Best buy-young → sell-heavier routes</h2><p>These compare cheap young-goat markets against stronger heavier-goat markets. This is the part that matters for flipping.</p>${table(['Rank','Buy young at','Sell heavier at','Price gap','Decision'],rs.map((r,i)=>{const d=decision(r.gap);return `<tr><td><b>#${i+1}</b></td><td>${short(r.buy.name||r.buy.id)}<small>${money(r.buy.buy)} per 100 lb</small></td><td>${short(r.sell.name||r.sell.id)}<small>${money(r.sell.sell)} per 100 lb</small></td><td><b class="gb-money">+${money(r.gap)}</b></td><td><span class="gb-pill ${d[1]}">${d[0]}</span><small>${d[2]}</small></td></tr>`}).join('')||[`<tr><td colspan="5">No usable buy/sell route yet. We need both young-goat and heavier-goat prices.</td></tr>`])}</section>`;
   }
-  function bestBuy(db){let r=buyRows(db)[0];return r?shortName(r.name||r.id):'Waiting on prices';}
-  function bestSell(db){let r=sellRows(db)[0];return r?shortName(r.name||r.id):'Waiting on prices';}
-  function bestSpread(db){let r=opportunityRows(db).filter(x=>x.status.cls==='best')[0]||opportunityRows(db)[0];return r?safeNum(r.spread):0;}
-  function buyTable(db){
-    const rs=buyRows(db);
-    return `<section class="friendly-card friendly-table"><h2>Best places to buy young goats</h2><p class="muted">Look for 40–60 pound goats where the starting price is low.</p>${table(['Market','Young-goat price','What to do'],rs.map(r=>`<tr><td><b>${shortName(r.name||r.id)}</b></td><td>${money2(r.q2)} per 100 lb</td><td><span class="status-pill ${safeNum(r.q2)<=300?'status-best':'status-watch'}">${safeNum(r.q2)<=300?'Good place to start':'Watch for bargains'}</span></td></tr>`))}</section>`;
+  function buySellLists(db){
+    const buys=buyMarkets(db).slice(0,6), sells=sellMarkets(db).slice(0,6);
+    return `<section class="gb-split"><div class="gb-card"><h2>Cheapest places to buy young goats</h2><p>Target: healthy 40–60 lb goats. Lower is better, but avoid sick or poor animals.</p>${table(['Market','Young price','Plain meaning'],buys.map(r=>`<tr><td><b>${short(r.name||r.id)}</b></td><td>${money(r.buy)}</td><td>${r.buy<=250?'Cheap starting point':r.buy<=320?'Usable starting point':'Expensive; be picky'}</td></tr>`))}</div><div class="gb-card"><h2>Strongest places to sell heavier goats</h2><p>Target: 70–90 lb goats. Higher is better after hauling and auction costs.</p>${table(['Market','Heavier price','Plain meaning'],sells.map(r=>`<tr><td><b>${short(r.name||r.id)}</b></td><td>${money(r.sell)}</td><td>${r.sell>=430?'Strong sell market':r.sell>=360?'Good sell market':'Usable only if close'}</td></tr>`))}</div></section>`;
   }
-  function sellTable(db){
-    const rs=sellRows(db);
-    return `<section class="friendly-card friendly-table"><h2>Best places to sell heavier goats</h2><p class="muted">Look for 70–90 pound goats where finished-goat prices are strong.</p>${table(['Market','Finished-goat price','What to do'],rs.map(r=>`<tr><td><b>${shortName(r.name||r.id)}</b></td><td>${money2(r.q1)} per 100 lb</td><td><span class="status-pill ${safeNum(r.q1)>=400?'status-best':'status-watch'}">${safeNum(r.q1)>=400?'Strong sell market':'Usable if costs fit'}</span></td></tr>`))}</section>`;
+  function barChart(db){
+    const rs=bestRoutes(db).slice(0,6), max=Math.max(1,...rs.map(r=>r.gap));
+    return `<section class="gb-card"><h2>Flip gap leaderboard</h2><p>The longer the bar, the more room you have before costs.</p><div class="gb-bars">${rs.map(r=>`<div class="gb-bar"><b>${r.route}</b><div><span style="width:${Math.max(6,r.gap/max*100)}%"></span></div><strong>+${money(r.gap)}</strong></div>`).join('')}</div></section>`;
   }
-  function opportunityTable(db){
-    const rs=opportunityRows(db).slice(0,12);
-    return `<section class="friendly-card friendly-table"><h2>Today’s goat flipping snapshot</h2><p class="muted">Buy young where prices are low. Sell older where prices are higher. The gap is the room you have to pay feed, medicine, fuel, and still keep profit.</p>${table(['Market','Buy young price','Sell older price','Room to grow','Plain-English decision'],rs.map(r=>`<tr><td><b>${shortName(r.name||r.id)}</b></td><td>${money2(r.q2)}</td><td>${money2(r.q1)}</td><td><b class="${r.status.cls==='avoid'?'badText':r.status.cls==='watch'?'warnText':'goodText'}">${r.spread>=0?'+':''}${money2(r.spread)}</b></td><td><span class="status-pill status-${r.status.cls}">${r.status.label}</span><br><small>${r.status.plain}</small></td></tr>`))}</section>`;
+  function steps(){return `<section class="gb-card"><h2>The simple goat flip plan</h2><div class="gb-steps"><div><b>1. Buy young</b><span>Look for healthy 40–60 lb goats priced below the market average.</span></div><div><b>2. Grow them</b><span>Add weight with feed, clean water, deworming, and careful health checks.</span></div><div><b>3. Sell heavier</b><span>Move them when they hit 70–90 lb and a strong market is paying.</span></div><div><b>4. Keep the gap</b><span>The leftover money after all costs is the actual profit.</span></div></div></section>`;}
+  function words(){return `<section class="gb-card"><h2>Goat words in plain English</h2><div class="gb-words"><p><b>Kid:</b> young goat. This is usually what you buy to grow.</p><p><b>Doe:</b> adult female goat.</p><p><b>Buck:</b> adult male goat.</p><p><b>Wether:</b> castrated male goat, often raised for meat.</p><p><b>Per 100 lb:</b> auction price unit. A 50 lb goat at $300 per 100 lb is about $150.</p></div></section>`;}
+  function mathBox(db){
+    const r=bestRoutes(db)[0];
+    if(!r)return '';
+    const youngLb=50, olderLb=80, buyEach=youngLb*r.buy.buy/100, sellEach=olderLb*r.sell.sell/100, gross=sellEach-buyEach;
+    return `<section class="gb-card gb-math"><h2>Example using today’s best route</h2><p>Buy a 50 lb young goat at ${short(r.buy.name||r.buy.id)} and sell an 80 lb heavier goat at ${short(r.sell.name||r.sell.id)}.</p><div class="gb-calc"><div><span>Estimated buy cost</span><b>${money(buyEach)}</b></div><div><span>Estimated sell money</span><b>${money(sellEach)}</b></div><div><span>Gross room before costs</span><b>+${money(gross)}</b></div></div><small>This is not final profit. Feed, medicine, auction fees, death loss, and hauling still come out.</small></section>`;
   }
-  function table(headers,rowHtml){
-    return `<div class="tableWrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rowHtml.join('')}</tbody></table></div>`;
-  }
-  function bars(db){
-    const rs=opportunityRows(db).slice(0,10);
-    const max=Math.max(1,...rs.map(r=>Math.abs(safeNum(r.spread))));
-    return `<section class="friendly-card"><h2>Profit window by market</h2><p class="muted">Green means room to buy young and sell heavier. Red means stay away until the market changes.</p><div class="market-bars">${rs.map(r=>`<div class="market-bar"><b>${shortName(r.name||r.id)}</b><div class="bar-track"><div class="bar-fill ${r.spread<0?'bad':''}" style="width:${Math.max(4,Math.min(100,Math.abs(r.spread)/max*100))}%"></div></div><span class="bar-value ${r.spread<0?'badText':'goodText'}">${r.spread>=0?'+':''}${money2(r.spread)}</span></div>`).join('')}</div></section>`;
-  }
-  function simpleChart(db){
-    const rs=opportunityRows(db).slice(0,6);
-    const max=Math.max(1,...rs.flatMap(r=>[safeNum(r.q2),safeNum(r.q1)]));
-    const groups=rs.map((r,i)=>{let x=55+i*115;let buyH=safeNum(r.q2)/max*150;let sellH=safeNum(r.q1)/max*150;let yBuy=190-buyH;let ySell=190-sellH;return `<rect class="buy" x="${x}" y="${yBuy}" width="28" height="${buyH}" rx="4"></rect><rect class="sell" x="${x+32}" y="${ySell}" width="28" height="${sellH}" rx="4"></rect><text x="${x+14}" y="${yBuy-8}" text-anchor="middle" class="label">${money2(r.q2)}</text><text x="${x+46}" y="${ySell-8}" text-anchor="middle" class="label">${money2(r.q1)}</text><text x="${x+30}" y="222" text-anchor="middle">${shortName(r.name||r.id).split(' ')[0]}</text>`}).join('');
-    return `<section class="chart-panel"><h2>Buy young here. Sell older there.</h2><p class="muted">Green bar = young-goat price. Brown bar = heavier finished-goat price.</p><svg class="simple-chart" viewBox="0 0 760 240"><line x1="36" x2="735" y1="190" y2="190"></line>${groups}<circle cx="520" cy="25" r="7" class="buy"></circle><text x="534" y="30">Young goat price</text><rect x="640" y="18" width="14" height="14" rx="3" class="sell"></rect><text x="660" y="30">Older goat price</text></svg></section>`;
-  }
-  function explainer(){
-    return `<section class="explainer-grid"><div class="friendly-card"><h2>What does “good profit window” mean?</h2><p>It means there is enough room between the price to buy a young goat and the price to sell a heavier goat that you might make money after normal costs.</p><div class="plain-formula">Profit = sale money − purchase cost − feed − health care − hauling</div><p class="muted">Do not buy just because the sell price is high. You make money when the gap is big enough and your costs stay controlled.</p></div><div class="friendly-card signal-list"><div class="signal-row"><span class="signal-dot good"></span><div><b>Green: good opportunity</b><span>Worth looking at goats if they are healthy and priced right.</span></div></div><div class="signal-row"><span class="signal-dot watch"></span><div><b>Yellow: be careful</b><span>You might make a little, but one vet bill or long haul can erase profit.</span></div></div><div class="signal-row"><span class="signal-dot bad"></span><div><b>Red: do not buy for flipping</b><span>The market is not giving enough room to buy young and sell heavier.</span></div></div></div></section>`;
-  }
-  function flipSteps(){
-    return `<section class="friendly-card"><h2>How to flip goats</h2><div class="flip-steps"><div class="flip-step"><div class="step-num">1</div><b>Buy young</b><span>Look for healthy 40–60 pound goats where starting prices are low.</span></div><div class="flip-step"><div class="step-num">2</div><b>Grow them</b><span>Feed, deworm, watch health, and add weight without wasting money.</span></div><div class="flip-step"><div class="step-num">3</div><b>Sell heavier</b><span>Aim for 70–90 pounds at a market paying more for finished goats.</span></div><div class="flip-step"><div class="step-num">4</div><b>Keep the spread</b><span>Your profit is whatever remains after purchase, feed, health, and hauling.</span></div></div></section>`;
-  }
-  function goatWords(){
-    return `<section class="friendly-card"><h2>What the goat words mean</h2><div class="goat-word"><div class="goat-pic">🐐</div><div><b>Kid</b><br><span>Young goat, usually under 1 year old. Common buying target.</span></div></div><div class="goat-word"><div class="goat-pic">🐐</div><div><b>Doe</b><br><span>Adult female goat. Can be used for breeding or meat.</span></div></div><div class="goat-word"><div class="goat-pic">🐐</div><div><b>Buck</b><br><span>Adult male goat. Used for breeding or meat.</span></div></div><div class="goat-word"><div class="goat-pic">🐐</div><div><b>Wether</b><br><span>Castrated male goat. Common meat animal.</span></div></div></section>`;
-  }
-  function tips(){
-    return `<section class="friendly-card"><h2>How to think like a goat flipper</h2><div class="tip-list"><div>Buy where the starting price is low.</div><div>Sell where heavier goats are in demand.</div><div>Never ignore feed, health, auction, and fuel costs.</div><div>Do not buy just because a goat looks nice. Buy because the numbers work.</div><div>When the market is thin, wait for a better deal.</div></div></section>`;
-  }
-  function refreshedDashboard(db){
-    document.body.classList.add('goatbot-friendly');
-    const act=active(db);
-    const buy=bestBuy(db), sell=bestSell(db), spread=bestSpread(db);
-    return `<main class="friendly-dashboard"><section class="friendly-hero"><div class="friendly-tile"><div class="icon">🛒</div><div><b>Best place to buy young goats</b><strong>${buy}</strong><span>Lower starting price</span></div></div><div class="friendly-tile sell"><div class="icon">📈</div><div><b>Best place to sell older goats</b><strong>${sell}</strong><span>Higher finished-goat price</span></div></div><div class="friendly-tile profit"><div class="icon">💵</div><div><b>Best profit window</b><strong>${spread>=0?'+':''}${money2(spread)}</strong><span>Room to grow</span></div></div><div class="friendly-tile herd"><div class="icon">🐐</div><div><b>Active herd</b><strong>${act.length} of ${db.settings&&db.settings.capacity?db.settings.capacity:40} goats</strong><span>Keep room for bargains</span></div></div></section>${explainer()}<section class="opportunity-grid">${buyTable(db)}${sellTable(db)}${bars(db)}</section>${flipSteps()}<section class="opportunity-grid wide">${opportunityTable(db)}${simpleChart(db)}</section><section class="learn-grid">${goatWords()}${tips()}</section><div class="friendly-footer">Real goats. Real markets. Clear decisions.<small>Buy young. Grow smart. Sell heavier.</small></div></main>`;
-  }
-  function refreshedMarket(db){
-    document.body.classList.add('goatbot-friendly');
-    return `<main class="friendly-dashboard">${explainer()}<section class="opportunity-grid">${buyTable(db)}${sellTable(db)}${bars(db)}</section>${opportunityTable(db)}${simpleChart(db)}</main>`;
-  }
-  function install(){
-    document.body.classList.add('goatbot-friendly');
-    window.dashboardPage=refreshedDashboard;
-    window.marketPage=refreshedMarket;
-    if(typeof window.render==='function'){
-      try{window.render();}catch(e){console.warn('GoatBot dashboard refresh render skipped',e);}
-    }
-  }
+  function dashboard(db){document.body.classList.add('goatbot-friendly-v2');return `<main class="gb-wrap">${sourceCard(db)}${hero(db)}${explainer()}${routeTable(db)}${buySellLists(db)}${barChart(db)}${mathBox(db)}${steps()}${words()}<section class="gb-footer">Real goats. Real markets. Clear decisions.</section></main>`;}
+  function market(db){document.body.classList.add('goatbot-friendly-v2');return `<main class="gb-wrap">${sourceCard(db)}${explainer()}${routeTable(db)}${buySellLists(db)}${barChart(db)}${mathBox(db)}</main>`;}
+  function install(){document.body.classList.add('goatbot-friendly-v2');window.dashboardPage=dashboard;window.marketPage=market;if(typeof window.render==='function'){try{window.render();}catch(e){console.warn('GoatBot dashboard refresh render skipped',e);}}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else setTimeout(install,0);
 })();
