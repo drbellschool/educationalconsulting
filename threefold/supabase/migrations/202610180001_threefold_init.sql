@@ -151,28 +151,36 @@ grant select on public.threefold_admins to authenticated;
 create policy threefold_admin_self on public.threefold_admins
   for select to authenticated using (user_id = (select auth.uid()));
 
--- Only aggregate dashboard tables are readable from authenticated admin clients.
--- Conversations and Love Whispers intentionally remain server-only.
-grant select on public.threefold_participants, public.threefold_couples,
- public.threefold_inbound_events, public.threefold_outbox,
- public.threefold_reminders, public.threefold_audit,
- public.threefold_adventures, public.threefold_progress to authenticated;
-create policy threefold_admin_participants on public.threefold_participants
- for select to authenticated using ((select public.threefold_is_admin()));
-create policy threefold_admin_couples on public.threefold_couples
- for select to authenticated using ((select public.threefold_is_admin()));
-create policy threefold_admin_events on public.threefold_inbound_events
- for select to authenticated using ((select public.threefold_is_admin()));
-create policy threefold_admin_outbox on public.threefold_outbox
- for select to authenticated using ((select public.threefold_is_admin()));
-create policy threefold_admin_reminders on public.threefold_reminders
- for select to authenticated using ((select public.threefold_is_admin()));
+-- Admin browser can view *only* counts and audited action metadata, not raw SMS bodies.
+-- Do not grant participant, inbound event, outbox or Whisper table SELECT.
+grant select on public.threefold_audit to authenticated;
 create policy threefold_admin_audit on public.threefold_audit
- for select to authenticated using ((select public.threefold_is_admin()));
-create policy threefold_admin_adventures on public.threefold_adventures
- for select to authenticated using ((select public.threefold_is_admin()));
-create policy threefold_admin_progress on public.threefold_progress
- for select to authenticated using ((select public.threefold_is_admin()));
+  for select to authenticated using ((select public.threefold_is_admin()));
+
+create or replace function public.threefold_dashboard_counts()
+returns jsonb language plpgsql stable security definer set search_path = ''
+as $$
+begin
+  if not public.threefold_is_admin() then
+    raise exception 'Not authorized' using errcode='42501';
+  end if;
+  return jsonb_build_object(
+    'enrolled',(select count(*) from public.threefold_participants where status='OPTED_IN'),
+    'pendingConsent',(select count(*) from public.threefold_participants where status='PENDING_ADULT'),
+    'optedOut',(select count(*) from public.threefold_participants where status='OPTED_OUT'),
+    'activeCouples',(select count(*) from public.threefold_couples where status='ACTIVE'),
+    'eventsPending',(select count(*) from public.threefold_inbound_events where status='PENDING'),
+    'eventReview',(select count(*) from public.threefold_inbound_events where status='REVIEW'),
+    'outboundPending',(select count(*) from public.threefold_outbox where status='QUEUED'),
+    'outboundReview',(select count(*) from public.threefold_outbox where status='REVIEW'),
+    'remindersPending',(select count(*) from public.threefold_reminders where status='PENDING'),
+    'adventureLibrary',(select count(*) from public.threefold_adventures),
+    'startedAdventures',(select count(*) from public.threefold_progress)
+  );
+end;
+$$;
+revoke all on function public.threefold_dashboard_counts() from public,anon;
+grant execute on function public.threefold_dashboard_counts() to authenticated,service_role;
 
 -- Atomic queue claims; uncertain retries go to REVIEW, never automatically resend.
 create or replace function public.threefold_claim_events(p_limit integer default 10)
