@@ -1,0 +1,25 @@
+name: Threefold preview checks
+on:
+  pull_request:
+    paths:
+      - "threefold/app/**"
+      - "threefold/index.html"
+      - ".github/workflows/threefold-preview.yml"
+  push:
+    branches: [main]
+    paths:
+      - "threefold/app/**"
+      - "threefold/index.html"
+jobs:
+  demo-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Test couple experience content and safety
+        run: node --test threefold/app/tests/smoke.test.mjs
