@@ -39,9 +39,9 @@ window.THREEFOLD_CONTENT = Object.freeze({
     },
     {
       id:"sunset", title:"The Golden-Hour Detour", category:"Get out of routine",
-      mood:["quiet","playful","romantic"], baseCost:10, minutes:60,
-      intro:"Take the longer way to a familiar place. Bring a small treat and turn an ordinary evening into a first-date conversation.",
-      supplies:"Comfortable shoes, a drink or treat, and an agreed-upon public place.",
+      mood:["quiet","playful","romantic","creative"], baseCost:0, minutes:60,
+      intro:"Take the longer way to a familiar place. Bring a favorite drink from home and turn an ordinary evening into a first-date conversation.",
+      supplies:"Comfortable shoes, a drink from home, and an agreed-upon public place.",
       steps:[
         "Pick a safe, public spot where you can talk without rushing.",
         "Each choose a song for the trip or walk.",
