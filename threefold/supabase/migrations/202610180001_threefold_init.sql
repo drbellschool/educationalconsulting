@@ -66,7 +66,7 @@ create table if not exists public.threefold_reminders (
   participant_id uuid not null references public.threefold_participants(id),
   body text not null,
   due_at timestamptz not null,
-  status text not null default 'PENDING' check(status in ('PENDING','QUEUED','CANCELLED')),
+  status text not null default 'PENDING' check(status in ('PENDING','PROCESSING','QUEUED','CANCELLED')),
   created_at timestamptz not null default now()
 );
 create index if not exists threefold_reminders_due_idx on public.threefold_reminders(status,due_at);
@@ -202,6 +202,23 @@ revoke all on function public.threefold_claim_events(integer) from public,anon,a
 revoke all on function public.threefold_claim_outbox(integer) from public,anon,authenticated;
 grant execute on function public.threefold_claim_events(integer) to service_role;
 grant execute on function public.threefold_claim_outbox(integer) to service_role;
+
+
+-- Reminders are claimed atomically to avoid duplicate scheduled SMS during overlapping jobs.
+create or replace function public.threefold_claim_reminders(p_limit integer default 15)
+returns setof public.threefold_reminders
+language sql security definer set search_path = ''
+as $
+ with chosen as (
+   select id from public.threefold_reminders
+   where status='PENDING' and due_at<=now()
+   order by due_at for update skip locked limit least(greatest(p_limit,1),20)
+ )
+ update public.threefold_reminders t set status='PROCESSING'
+ from chosen where t.id=chosen.id returning t.*;
+$;
+revoke all on function public.threefold_claim_reminders(integer) from public,anon,authenticated;
+grant execute on function public.threefold_claim_reminders(integer) to service_role;
 
 -- During setup, create YOUR admin account under Supabase Auth > Users, then run:
 -- insert into public.threefold_admins(user_id)
