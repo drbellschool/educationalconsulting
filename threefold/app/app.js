@@ -57,7 +57,7 @@
     if(view==="dive")renderDive();
     if(view==="journey")renderJourney();
     if(view==="home")renderHome();
-    window.scrollTo({top:0,behavior:"instant"});
+    window.scrollTo({top:0,behavior:"auto"});
   }
   const polar = (radius,degrees) => {
     const a=degrees*Math.PI/180;
@@ -237,7 +237,18 @@
     const i=state.diveChapter,c=chapters[i],v=state.choices[String(i)];
     $("chapterTitle").textContent=c.title;
     $("chapterLocation").textContent=c.location;
-    $("chapterStory").textContent=c.story;
+    // The final chapter respects the earlier independent mastery choice.
+    const finalChoice=state.choices["6"];
+    const finalPaths=[
+      "Christmas morning belongs to Jack and Jill's home, as they agreed. The cinnamon rolls burn, and his mother is still disappointed. Jack checks on Jill and they laugh over breakfast, knowing holding a boundary doesn't erase other people's feelings.",
+      "Christmas morning at home feels quieter than either hoped. Jack's sharp words on the phone hang over the day. He apologizes to his mother for the insult without withdrawing the shared plan, and tells Jill that defending her should not mean escalating conflict. The repair has begun, but trust needs follow-through.",
+      "Jack and Jill stay home for Christmas morning, but Jill feels exposed after being blamed. Jack admits he made her carry a decision they had made together. He offers to correct that with his mother. Their morning isn't magically repaired, yet they're finally naming the real hurt.",
+      "Jack follows through on the promised second conversation before Christmas. His mother remains disappointed but hears a clear, kind boundary. Jill appreciates the follow-through. Their quiet morning is imperfect, and progress depends on repeating that choice next time.",
+      "Jack and Jill go to his mother's breakfast after he changed their plan alone. Jill is hurt. Later, Jack acknowledges that he let pressure undo a joint decision and listens instead of demanding instant forgiveness. They agree to revisit the next holiday together. Repair is possible, not automatic.",
+      "Jack and Jill spend Christmas morning at home, keeping their shared plan. His mother remains sad, but Jack is both warm and clear. After the cinnamon rolls burn, he and Jill laugh and begin a small tradition of their own. It isn't perfect, but it belongs to them."
+    ];
+    $("chapterStory").textContent=i===7 && typeof finalChoice==="number"?
+      finalPaths[finalChoice]||c.story:c.story;
     $("chapterTransition").textContent=c.transition||"";
     $("diveFraction").textContent=String(i+1).padStart(2,"0")+" / 08";
     const rail=$("milestoneRail");
@@ -295,7 +306,15 @@
           "Choose before reading any feedback. This moment is yours to consider.":"Choose a response to see a realistic consequence.";
       }
     }else{
-      $("lessonText").textContent=c.takeaway;
+      if(i===7 && typeof finalChoice==="number"){
+        const mastery=CONTENT.dive.chapters[6].options[finalChoice].quality;
+        const label=mastery===2?"Demonstrated":mastery===1?"Developing":"Not yet demonstrated";
+        $("lessonText").textContent="Independent mastery: "+label+". "+c.takeaway+
+          (mastery===2?" The choice showed respectful joint ownership under pressure.":
+           " The story offers a path toward repair, but repair requires accountability and real follow-through.");
+      } else {
+        $("lessonText").textContent=c.takeaway;
+      }
     }
     let label;
     if(state.diveCompleted===8){
