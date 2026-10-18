@@ -241,8 +241,7 @@ async function processIncoming() {
   }
 }
 async function processReminders() {
-  const rows=checked(await db.from(T('reminder')).select('*').eq('status','PENDING')
-    .lte('due_at',new Date().toISOString()).order('due_at').limit(15));
+  const rows=checked(await db.rpc('threefold_claim_reminders',{p_limit:15}));
   for(const r of rows||[]){
     const p=await find('participant','id',r.participant_id);
     if(p?.status==='OPTED_IN') await out(p,'Your Threefold reminder: '+r.body,'REMINDER_DUE');
@@ -250,6 +249,8 @@ async function processReminders() {
   }
 }
 async function processOutbound() {
+  const telnyxKey=Deno.env.get('TELNYX_API_KEY');
+  if(!telnyxKey) return; // No claim means no messages are stranded in PROCESSING.
   const queue=checked(await db.rpc('threefold_claim_outbox',{p_limit:12}));
   for(const o of queue||[]){
     try {
@@ -257,10 +258,6 @@ async function processOutbound() {
       const exceptional=['STOP_ACK','HELP_ACK','JOIN_REQUEST','CONSENT_REQUEST'];
       if(!p||(p.status!=='OPTED_IN'&&!exceptional.includes(o.kind))){
         await update('outbox',o.id,{status:'SUPPRESSED'});continue;
-      }
-      const telnyxKey=Deno.env.get('TELNYX_API_KEY');
-      if(!telnyxKey){ // Preserve queued messages until credentials are available.
-        await update('outbox',o.id,{status:'QUEUED'});break;
       }
       // PROCESSING is held if a network call's outcome is uncertain. No blind retry.
       const response=await fetch('https://api.telnyx.com/v2/messages',{
