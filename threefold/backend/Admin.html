@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{--ink:#202a32;--muted:#6a7277;--sage:#667b6b;--rose:#a9686a;--gold:#b58a45;--line:#e9e0d3}
+    *{box-sizing:border-box}body{margin:0;padding:18px;background:#fbf7ef;color:var(--ink);font:14px/1.5 Arial,sans-serif}
+    h1{font:normal 30px Georgia,serif;margin:0 0 5px}h2{font:normal 19px Georgia,serif;margin:18px 0 8px}
+    .small{font-size:12px;color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .tile{border:1px solid var(--line);background:#fffdf8;border-radius:14px;padding:13px}
+    .value{font:normal 29px Georgia,serif}.label{color:var(--muted);font-size:12px}
+    button{border:0;border-radius:40px;color:#fff;background:var(--ink);padding:11px 14px;font-weight:700;cursor:pointer}
+    button.secondary{background:var(--sage)}button:disabled{opacity:.5;cursor:wait}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}.line{margin:8px 0;border-bottom:1px solid var(--line);padding-bottom:8px}
+    .chip{border-radius:99px;padding:2px 7px;font-size:11px;background:#f0e4d3;color:#75582d}
+    .safe{color:#41684f}.warn{color:#a45a49}.notice{padding:12px;border:1px solid var(--line);border-radius:13px;background:#fffdf8;margin-top:15px}
+    .audit{font-size:12px;word-break:break-word}
+  </style>
+</head>
+<body>
+  <div class="small">THE MARRIAGE PROJECT / PRIVATE PILOT</div>
+  <h1>Threefold</h1>
+  <div class="small">Connected through this private Google Sheet. No partner's private messages are displayed in this dashboard.</div>
+  <div class="actions">
+    <button onclick="refresh()">Refresh</button>
+    <button class="secondary" id="run" onclick="runNow()">Process queue</button>
+  </div>
+  <div id="status" class="small" role="status">Loading status…</div>
+  <h2>Participants &amp; couples</h2>
+  <section class="grid">
+    <div class="tile"><div class="value" id="enrolled">—</div><div class="label">Opted-in adults</div></div>
+    <div class="tile"><div class="value" id="couples">—</div><div class="label">Active couples</div></div>
+    <div class="tile"><div class="value" id="pendingConsent">—</div><div class="label">Awaiting consent</div></div>
+    <div class="tile"><div class="value" id="optedOut">—</div><div class="label">Opted out</div></div>
+  </section>
+  <h2>Delivery health</h2>
+  <section class="grid">
+    <div class="tile"><div class="value" id="eventsPending">—</div><div class="label">Inbound events waiting</div></div>
+    <div class="tile"><div class="value" id="outboundPending">—</div><div class="label">Outgoing SMS waiting</div></div>
+    <div class="tile"><div class="value" id="outboundReview">—</div><div class="label">Outgoing messages to review</div></div>
+    <div class="tile"><div class="value" id="futureReminders">—</div><div class="label">Scheduled reminders</div></div>
+  </section>
+  <div class="notice">
+    <strong>Configuration</strong>
+    <div class="line">Telnyx key: <span id="telnyxConfigured">—</span></div>
+    <div class="line">OpenAI key: <span id="openaiConfigured">—</span></div>
+    <div>Webhook shared secret: <span id="intakeConfigured">—</span></div>
+    <p class="small">A configured key means a value is present, not that an external integration has passed end-to-end testing.</p>
+  </div>
+  <h2>Recent audit actions</h2>
+  <div class="notice audit" id="audit">Loading…</div>
+  <div class="small" style="margin-top:15px">Never share this spreadsheet with pilot participants. Its tabs contain operational data and private conversations.</div>
+<script>
+  function message(x){document.getElementById("status").textContent=x;}
+  function setStatus(id,ready){
+    const el=document.getElementById(id);el.textContent=ready?"Configured":"Missing";
+    el.className=ready?"safe":"warn";
+  }
+  function refresh(){
+    message("Refreshing…");
+    google.script.run.withSuccessHandler(data=>{
+      ["enrolled","couples","pendingConsent","optedOut","eventsPending","outboundPending","outboundReview","futureReminders"]
+        .forEach(id=>document.getElementById(id).textContent=data[id]);
+      ["telnyxConfigured","openaiConfigured","intakeConfigured"].forEach(id=>setStatus(id,data[id]));
+      message("Updated "+data.updated);
+    }).withFailureHandler(err=>message("Could not load dashboard: "+err.message)).getThreefoldAdminSummary();
+    google.script.run.withSuccessHandler(actions=>{
+      const box=document.getElementById("audit");box.replaceChildren();
+      if(!actions.length){box.textContent="No actions recorded yet.";return;}
+      actions.forEach(a=>{
+        const div=document.createElement("div");div.className="line";
+        div.textContent=a.when+" · "+a.action+" · "+a.details;
+        box.appendChild(div);
+      });
+    }).withFailureHandler(err=>{document.getElementById("audit").textContent=err.message;}).getThreefoldAdminRecent();
+  }
+  function runNow(){
+    const b=document.getElementById("run");b.disabled=true;message("Processing queued work…");
+    google.script.run.withSuccessHandler(()=>{b.disabled=false;refresh();})
+      .withFailureHandler(err=>{b.disabled=false;message("Queue error: "+err.message);})
+      .runThreefoldQueue();
+  }
+  refresh();
+</script>
+</body>
+</html>
