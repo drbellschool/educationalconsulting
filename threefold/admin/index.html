@@ -89,30 +89,25 @@ async function showSession(session){
  if(error||!data){show('login');msg('This account is not authorized for Threefold administration.',true);return;}
  show('dashboard');msg('Secure admin session active.');await refresh();
 }
-async function count(table,condition){
- let query=sb.from(table).select('*',{count:'exact',head:true});
- if(condition)query=query.eq(condition[0],condition[1]);
- const result=await query;
- if(result.error)throw Error(result.error.message);
- return result.count??0;
-}
 async function refresh(){
  try {
   msg('Loading metrics…');
+  const {data:summary,error:summaryError}=await sb.rpc('threefold_dashboard_counts');
+  if(summaryError)throw Error(summaryError.message);
   const specs=[
-   ['Opted-in adults','threefold_participants',['status','OPTED_IN']],
-   ['Awaiting consent','threefold_participants',['status','PENDING_ADULT']],
-   ['Opted out','threefold_participants',['status','OPTED_OUT']],
-   ['Active couples','threefold_couples',['status','ACTIVE']],
-   ['New SMS events','threefold_inbound_events',['status','PENDING']],
-   ['SMS event review','threefold_inbound_events',['status','REVIEW']],
-   ['Outbound waiting','threefold_outbox',['status','QUEUED']],
-   ['Outbound review','threefold_outbox',['status','REVIEW']],
-   ['Future reminders','threefold_reminders',['status','PENDING']],
-   ['Adventure library','threefold_adventures',null],
-   ['Started adventures','threefold_progress',null]
+   ['Opted-in adults','enrolled'],
+   ['Awaiting consent','pendingConsent'],
+   ['Opted out','optedOut'],
+   ['Active couples','activeCouples'],
+   ['New SMS events','eventsPending'],
+   ['SMS event review','eventReview'],
+   ['Outbound waiting','outboundPending'],
+   ['Outbound review','outboundReview'],
+   ['Future reminders','remindersPending'],
+   ['Adventure library','adventureLibrary'],
+   ['Started adventures','startedAdventures']
   ];
-  const vals=await Promise.all(specs.map(async s=>[s[0],await count(s[1],s[2])]));
+  const vals=specs.map(([label,key])=>[label,summary[key]??0]);
   by('metrics').replaceChildren();
   vals.forEach(([label,value])=>{
    const card=document.createElement('div');card.className='tile';
