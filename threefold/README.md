@@ -58,12 +58,13 @@ Run from your checkout (replace PROJECT_REF with your Supabase project reference
 
 \`\`\`bash
 npx supabase login
-npx supabase link --project-ref PROJECT_REF --workdir threefold/supabase
-npx supabase functions deploy telnyx-webhook --workdir threefold/supabase
-npx supabase functions deploy process-queue --workdir threefold/supabase
+cd threefold/supabase
+npx supabase link --project-ref PROJECT_REF
+npx supabase functions deploy telnyx-webhook
+npx supabase functions deploy process-queue
 \`\`\`
 
-Consult your installed CLI's \`--help\` if a different working-directory syntax is required. Function-specific \`verify_jwt = false\` is explicit in \`supabase/config.toml\`; **this does not make the endpoints unauthenticated:** one verifies Telnyx signatures, while the queue requires a server-side \`x-threefold-job-secret\` request header.
+Function-specific \`verify_jwt = false\` is explicit in \`supabase/config.toml\`; **this does not make the endpoints unauthenticated:** one verifies Telnyx signatures, while the queue requires a server-side \`x-threefold-job-secret\` request header.
 
 In **Supabase Edge Functions > Secrets**, set these values (never put them in GitHub or the public admin page):
 
