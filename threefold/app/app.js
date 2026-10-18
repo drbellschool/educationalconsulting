@@ -251,6 +251,7 @@
     const choices=!!c.options;
     $("choiceBlock").hidden=!choices;
     $("choiceOutcome").hidden=true;
+    $("choiceOutcome").querySelectorAll(".repair-action,.repair-note").forEach(node=>node.remove());
     $("storyLesson").hidden=choices;
     if(choices){
       $("chapterPrompt").textContent=c.prompt;
@@ -273,7 +274,7 @@
           const repaired=state.repairs[String(i)]===true;
           const repair=document.createElement("button");
           repair.type="button";repair.className="button ghost";
-          repair.id="repairChoice";repair.textContent=repaired?
+          repair.id="repairChoice";repair.classList.add("repair-action");repair.textContent=repaired?
             "Repair practiced ✓":"Practice a respectful repair";
           repair.disabled=repaired;
           repair.addEventListener("click",()=>{
@@ -284,7 +285,7 @@
           $("choiceOutcome").appendChild(repair);
           if(repaired){
             const note=document.createElement("p");
-            note.className="soft";
+            note.className="soft repair-note";
             note.textContent="Jack returns to the conversation: 'I was unfair. I'm sorry for blaming you. Can we try that again?' The original hurt still matters, but he's taking responsibility.";
             $("choiceOutcome").appendChild(note);
           }
