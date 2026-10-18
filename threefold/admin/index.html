@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Threefold | Pilot Administration</title>
+  <meta name="description" content="Threefold private pilot dashboard entrypoint.">
+  <style>
+    :root{--ink:#18202b;--cream:#fbf7ef;--paper:#fffdf8;--gold:#b58a45;--rose:#a9686a;--sage:#667b6b;--line:#e8dfd0;--muted:#697079}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);background:radial-gradient(circle at 18% 14%,rgba(181,138,69,.14),transparent 22rem),radial-gradient(circle at 86% 24%,rgba(169,104,106,.1),transparent 20rem),var(--cream);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+    .wrap{max-width:1040px;margin:auto;padding:28px 22px 70px}.nav{display:flex;justify-content:space-between;align-items:center;gap:20px}
+    a{color:inherit}.brand{text-decoration:none;font:bold 22px Georgia,serif}.nav a.secondary{font-size:14px}
+    header{padding:66px 0 28px;max-width:740px}.eyebrow{text-transform:uppercase;letter-spacing:.18em;color:var(--sage);font:bold 12px system-ui}
+    h1{font:normal clamp(42px,7vw,75px)/1.05 Georgia,serif;margin:12px 0}h2{font:normal 25px Georgia,serif;margin:4px 0 10px}
+    .lead{font-size:18px;color:#505a62;max-width:740px}.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:18px}
+    .panel{padding:30px;border:1px solid var(--line);border-radius:23px;background:rgba(255,253,248,.95);box-shadow:0 12px 30px rgba(30,25,20,.035)}
+    .tag{display:inline-block;border:1px solid #d2c5ae;background:#f9f2e6;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700}
+    label{display:block;margin:18px 0 7px;font-weight:700;font-size:14px}
+    input{width:100%;padding:13px 14px;border:1px solid #b9bfc2;border-radius:10px;font:inherit;background:#fff}
+    .btn{display:inline-block;border:0;border-radius:99px;background:var(--ink);color:#fff;text-decoration:none;padding:13px 20px;font:bold 14px system-ui;cursor:pointer;margin:16px 9px 0 0}
+    .btn.ghost{color:var(--ink);border:1px solid var(--line);background:transparent}
+    .muted{color:var(--muted);font-size:13px}.list{padding-left:22px}.list li{margin:9px 0}
+    .state{margin-top:14px;font-size:14px;min-height:23px}.state.bad{color:#9f4047}
+    .feature{display:flex;align-items:start;gap:12px;margin:21px 0}
+    .number{height:33px;width:33px;flex:0 0 33px;border-radius:50%;background:#efe7db;color:#795e36;display:grid;place-items:center;font-weight:700}
+    .footer{border-top:1px solid var(--line);margin-top:30px;padding-top:20px;font-size:13px;color:var(--muted)}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.panel{padding:21px}header{padding:45px 0 22px}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <nav class="nav"><a class="brand" href="../">Threefold</a><a class="secondary" href="../">← Public website</a></nav>
+  <header>
+    <div class="eyebrow">The Marriage Project · Private pilot</div>
+    <h1>Control room.</h1>
+    <p class="lead">A home for the logistics behind the adventure. Actual participant records, conversations, and message operations are kept in a private Google Sheet—not on this public page.</p>
+  </header>
+  <section class="grid">
+    <article class="panel">
+      <div class="tag">Private admin entry</div>
+      <h2>Open your dashboard</h2>
+      <p>Paste the URL of your private Threefold Google Sheet once. This browser will remember the link on this device; it does not upload the address to the website.</p>
+      <form id="connect">
+        <label for="sheet">Private Google Sheet URL</label>
+        <input id="sheet" type="url" autocomplete="off" spellcheck="false" placeholder="https://docs.google.com/spreadsheets/d/..." required>
+        <button class="btn" type="submit">Save dashboard link</button>
+        <button class="btn ghost" type="button" id="clear">Forget link</button>
+      </form>
+      <p id="state" class="state" role="status">No private dashboard link has been saved.</p>
+      <a id="open" class="btn" href="#" target="_blank" rel="noopener noreferrer" hidden>Open private Google Sheet ↗</a>
+      <p class="muted">Sign in to Google with the account that owns the Sheet. Inside it, select <strong>Threefold → Open private dashboard</strong>.</p>
+    </article>
+    <aside class="panel">
+      <div class="tag">What your dashboard manages</div>
+      <div class="feature"><span class="number">01</span><div><strong>Enrollment</strong><div class="muted">Independent adult opt-ins, STOPs, and couple linking.</div></div></div>
+      <div class="feature"><span class="number">02</span><div><strong>Message health</strong><div class="muted">Pending webhooks, outgoing queues, reminders, and delivery review.</div></div></div>
+      <div class="feature"><span class="number">03</span><div><strong>Privacy</strong><div class="muted">Each person's conversation stays separate. Love Whispers require explicit sharing.</div></div></div>
+      <div class="feature"><span class="number">04</span><div><strong>Conversations</strong><div class="muted">OpenAI operates from the backend only, never from this public page.</div></div></div>
+    </aside>
+  </section>
+  <footer class="footer">This page is a public launcher, not an authentication system. Access to the actual dashboard is governed by Google Sheet permissions. Never paste API keys, webhook secrets, participant information, or passwords here. <a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a></footer>
+</main>
+<script>
+  (() => {
+    "use strict";
+    const input=document.querySelector("#sheet"), open=document.querySelector("#open"), state=document.querySelector("#state");
+    const KEY="threefold_admin_sheet_link";
+    function valid(url) {
+      try {
+        const parsed=new URL(url);
+        return parsed.protocol==="https:" && parsed.hostname==="docs.google.com" && /^\/spreadsheets\/d\/[-_a-zA-Z0-9]+(?:\/|$)/.test(parsed.pathname);
+      } catch {return false;}
+    }
+    function show(url) {
+      if(valid(url)) {
+        input.value=url;open.href=url;open.hidden=false;
+        state.classList.remove("bad");state.textContent="Dashboard link saved on this device.";
+      } else {open.hidden=true;open.removeAttribute("href");}
+    }
+    try {show(localStorage.getItem(KEY)||"");}catch {}
+    document.querySelector("#connect").addEventListener("submit",e=>{
+      e.preventDefault();
+      const url=input.value.trim();
+      if(!valid(url)){state.classList.add("bad");state.textContent="Enter a valid Google Sheets link.";return;}
+      try {localStorage.setItem(KEY,url);}catch {}
+      show(url);
+    });
+    document.querySelector("#clear").addEventListener("click",()=>{
+      try{localStorage.removeItem(KEY);}catch{}
+      input.value="";show("");
+      state.classList.remove("bad");state.textContent="Saved link cleared from this browser.";
+    });
+  })();
+</script>
+</body>
+</html>
