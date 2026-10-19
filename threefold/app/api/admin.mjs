@@ -14,7 +14,7 @@ const json = (body, status = 200, extra = {}) =>
   new Response(JSON.stringify(body), { status, headers: { ...HEADERS, ...extra } });
 function env(name) { return process.env[name]?.trim() || ""; }
 const configured = () =>
-  env("THREEFOLD_ADMIN_PASSWORD").length >= 16 && env("THREEFOLD_SESSION_SECRET").length >= 32;
+  (process.env.THREEFOLD_ADMIN_PASSWORD || "").length >= 16 && env("THREEFOLD_SESSION_SECRET").length >= 32;
 
 function parseCookie(request, name) {
   const raw = request.headers.get("cookie") || "";
@@ -44,7 +44,7 @@ function correctPassword(input) {
   if (!configured() || typeof input !== "string" || input.length > 256) return false;
   const salt = "threefold-admin-password-v1";
   const a = scryptSync(input, salt, 32);
-  const b = scryptSync(env("THREEFOLD_ADMIN_PASSWORD"), salt, 32);
+  const b = scryptSync(process.env.THREEFOLD_ADMIN_PASSWORD || "", salt, 32);
   return timingSafeEqual(a, b);
 }
 function validOrigin(request) {
