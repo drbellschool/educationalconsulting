@@ -21,5 +21,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Test couple experience content and safety
-        run: node --test threefold/app/tests/smoke.test.mjs
+      - name: Test couple experience, admin auth and provider safety
+        run: node --test threefold/app/tests/*.test.mjs

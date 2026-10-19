@@ -46,3 +46,48 @@ This prototype is NOT a sellable deployed customer experience.
 - Design and complete a provider-appropriate privacy/security review.
 
 **Important:** This demo purposely has no real Supabase credentials, OpenAI key, Telnyx key or API requests. Do not add secrets to static JS, Vercel build outputs or source control.
+
+
+## Secure admin console and provider APIs
+
+The Stage 1 preview now has a **private admin studio** at the **Vercel** website's \`/admin/\` route (for example, \`https://threefold-preview.vercel.app/admin/\`). This is NOT the same as the static GitHub Pages copy; only Vercel hosts the \`/api/admin\` server function.
+
+**Admin controls:** Password-protected short-lived, HMAC-signed HttpOnly cookie, SameSite=Strict, Secure; same-origin request enforcement, JSON-only POSTs, no-cache responses, strict admin-page Content Security Policy. The password is never stored in browser local storage. This is a **single-administrator pilot gate**, not a multiuser customer authentication solution. Use Vercel Deployment Protection and WAF/rate limiting as additional protections. Replace the temporary password login with real Supabase Auth + MFA when database access is restored.
+
+### Set these Vercel Environment Variables
+
+Go to **Vercel > threefold-preview > Settings > Environment Variables**. Store values there; do **not** paste API keys or admin passwords into GitHub files, chat, or the public browser.
+
+| Variable | Purpose | Required to enable |
+| --- | --- | --- |
+| \`THREEFOLD_ADMIN_PASSWORD\` | Your own strong, unique passphrase (at least 16 characters). Stored as an encrypted/sensitive Vercel environment variable; do not reuse another service's password. | Admin login |
+| \`THREEFOLD_SESSION_SECRET\` | Independently generated random secret of 32+ characters. Treat as sensitive, keep server-side. | Admin login |
+| \`OPENAI_API_KEY\` | OpenAI API Platform secret. The ChatGPT subscription does not pay the API bill. | AI connection checks and rehearsal |
+| \`OPENAI_MODEL\` | Model ID, default \`gpt-4.1-mini\`. | Optional |
+| \`TELNYX_API_KEY\` | Telnyx API v2 Bearer key. | Telnyx read-only messaging profile check |
+| \`TELNYX_FROM_NUMBER\` | Sender in E.164 format (pilot \`+19036090465\`). | Optional status indicator |
+
+Scope these variables to the right Vercel environments (Production; Preview too if testing preview URLs). **Redeploy after changing secrets**: already-built deployments do not automatically acquire new variables. Vercel will not reveal secret values to the browser; the dashboard only indicates whether each key is present. Limit admin access to trusted administrators.
+
+### Admin features
+
+- **OpenAI Verify**: A small, authenticated test call to the Responses API (\`store:false\`, limited output). This may incur API usage costs.
+- **OpenAI Voice Rehearsal**: An explicit sample prompt to the Responses API, with server-controlled instructions and output bounds. Use fictional examples, never real couple details while the database is not ready.
+- **Telnyx Verify**: Authenticated, read-only request to \`GET /v2/messaging_profiles\`; shows the accessible profile names and IDs but sends no SMS. A successful test does not prove the 10DLC campaign is approved or that the number has deliverability.
+- **Launch control**: Honest blocked/ready indicators for services. There are **no customer messages, payment charges, or persistent participant records** from the admin console.
+
+### Endpoint contract
+
+| Path | Method | Access | Behavior |
+| --- | --- | --- | --- |
+| \`/api/admin\` | GET | Anonymous gets login status only; admin gets configuration flags | No secrets returned |
+| \`/api/admin\` | POST \`login\` | Valid configured passphrase + same origin | Issues HttpOnly, signed, 2-hour admin session |
+| \`/api/admin\` | POST \`logout\` | Authenticated | Expires browser cookie |
+| \`/api/admin\` | POST \`status\` | Authenticated | Provider connection flags, not real-customer statistics |
+| \`/api/admin\` | POST \`check-openai\` | Authenticated | One minimal Responses API call |
+| \`/api/admin\` | POST \`try-openai\` | Authenticated | One fictional 3–500 character prompt |
+| \`/api/admin\` | POST \`check-telnyx\` | Authenticated | Read-only Telnyx messaging profile GET |
+
+All POSTs require JSON, the matching request Origin and \`X-Threefold-Admin: 1\`. Provider keys are retrieved in the Vercel function only. The endpoint does not include any SMS send action, public chat API or webhook activation.
+
+This is **not yet** the live Telnyx SMS backend from the separate, unmerged Supabase draft. Never repoint Telnyx production webhooks to this admin function.
