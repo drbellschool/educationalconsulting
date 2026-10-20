@@ -19,6 +19,7 @@
     $("dashboard").hidden=id!=="dashboard";
     $("loginPanel").hidden=id!=="login";
     $("logout").hidden=id!=="dashboard";
+    document.dispatchEvent(new CustomEvent("threefold-auth",{detail:{authenticated:id==="dashboard"}}));
   };
   const say=(id,message,isError=false)=>{
     const el=$(id);el.textContent=message;
