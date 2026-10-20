@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {fileURLToPath} from "node:url";
+import vm from "node:vm";
 import {dirname,resolve} from "node:path";
 import admin from "../api/admin.mjs";
 
@@ -205,7 +206,6 @@ test("persona rehearsal is auth protected, limited to three scopes, and never sc
  assert.equal(new Set(instructions).size,3);
 });
 test("curriculum metadata is eight chapters, fixed mastery six choices and analytics are clearly fictional",()=>{
- const vm=await import("node:vm");
  const global={};
  vm.runInNewContext(readFileSync(resolve(root,"admin/studio-blueprint.js"),"utf8"),{window:global});
  const blueprint=global.THREEFOLD_STUDIO_BLUEPRINT;
