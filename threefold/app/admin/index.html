@@ -57,22 +57,41 @@
           </article>
           <article class="provider">
             <div class="provider-head"><div class="provider-icon telnyx">↗</div><div><div class="eyebrow">INDIVIDUAL TEXT EXPERIENCES</div><h3>Telnyx</h3></div><span class="state-label" id="telnyxBadge">Not configured</span></div>
-            <p>Connects each consenting spouse to Threefold by SMS. This screen checks API access without sending a message.</p>
+            <p>Connects each consenting spouse to Threefold by SMS. This screen checks API access. A separate gated test below can send one message to your own allowlisted phone.</p>
             <div class="data-line"><span>API secret</span><strong id="telnyxKey">—</strong></div>
             <div class="data-line"><span>Sender number</span><strong id="telnyxSender">—</strong></div>
             <div class="buttons"><button type="button" class="button primary" id="checkTelnyx">Verify Telnyx connection ↗</button></div>
             <div class="service-output" id="telnyxOutput" role="status">No live check has been run.</div>
           </article>
         </div>
+        <section class="panel test-sms-panel">
+          <div class="panel-top"><div><div class="eyebrow">02 / DELIVERY REHEARSAL</div><h2>Send one test text.</h2></div><span class="ornament">↗</span></div>
+          <p>Try a single, predefined Threefold message on your own mobile phone. The recipient must be privately allowlisted in Vercel and your Telnyx 10DLC campaign must already be approved with the sender number assigned. No real couple is contacted.</p>
+          <div class="test-readiness">
+            <div><span>Recipient allowlisted</span><strong id="smsTestRecipient">Not configured</strong></div>
+            <div><span>10DLC approval confirmed</span><strong id="smsTestCarrier">Awaiting verification</strong></div>
+            <div><span>SMS test switch</span><strong id="smsTestEnabled">Off</strong></div>
+          </div>
+          <div class="test-preview"><span class="eyebrow">EXACT MESSAGE TO SEND</span><p id="smsTestPreview">Threefold test: The adventure awaits! This is a single administrator-requested connectivity check, not an ongoing subscription. Reply STOP to opt out.</p></div>
+          <div class="test-checks">
+            <label class="check-row"><input id="smsOwner" type="checkbox"><span>This is my own mobile number, and I am the intended recipient.</span></label>
+            <label class="check-row"><input id="smsConsent" type="checkbox"><span>I consent to receiving this one test SMS from Threefold.</span></label>
+            <label class="check-row"><input id="smsCarrierConfirmed" type="checkbox"><span>I verified that Telnyx approved the 10DLC campaign and assigned this sender number.</span></label>
+          </div>
+          <label for="smsConfirm">Type <code>SEND ONE TEST</code> to authorize the message</label>
+          <input id="smsConfirm" autocomplete="off" spellcheck="false" placeholder="SEND ONE TEST" maxlength="24">
+          <div class="buttons"><button type="button" class="button primary" id="sendTestSMS" disabled>Send test SMS ↗</button><span class="hint">Each click requests a billable SMS. Do not repeat after uncertain results.</span></div>
+          <div class="service-output" id="testSMSOutput" role="status">SMS test is locked until the approved sending number and your phone are configured.</div>
+        </section>
         <section class="panel playground">
-          <div class="panel-top"><div><div class="eyebrow">02 / TRY THE VOICE</div><h2>A private AI rehearsal.</h2></div><span class="ornament">“</span></div>
+          <div class="panel-top"><div><div class="eyebrow">03 / TRY THE VOICE</div><h2>A private AI rehearsal.</h2></div><span class="ornament">“</span></div>
           <p>Explore the relationship-adventure tone with a fictional situation. This sends your test prompt to OpenAI, may incur API charges and does not read or store any couple's conversation.</p>
           <label for="aiPrompt">Fictional sample prompt</label>
           <textarea id="aiPrompt" maxlength="500" rows="4">Help two fictional spouses turn an ordinary Saturday night into a playful, affordable shared adventure.</textarea>
           <div class="buttons"><button type="button" class="button primary" id="tryOpenAI">Try the Threefold voice <span>✦</span></button><span class="hint">Maximum 500 characters. No real participant information.</span></div>
           <div class="ai-response" id="aiResponse" role="status"><span>THE RESPONSE WILL APPEAR HERE</span><p>Threefold's AI response is ready to rehearse once the OpenAI key is connected.</p></div>
         </section>
-        <div class="section-line"><div class="eyebrow">03 / LAUNCH CONTROL</div><h2>Before the first couple</h2></div>
+        <div class="section-line"><div class="eyebrow">04 / LAUNCH CONTROL</div><h2>Before the first couple</h2></div>
         <section class="launch-grid">
           <article class="launch-step"><span>01</span><div><strong>Connect the secure database</strong><p>Restore or replace Supabase, apply the reviewed SQL migrations, and enforce individual spouse privacy.</p></div></article>
           <article class="launch-step"><span>02</span><div><strong>Complete messaging compliance</strong><p>Verify Telnyx 10DLC approval, independent opt-in, STOP handling and reliable outbound logging.</p></div></article>
