@@ -169,6 +169,65 @@ test("approved explicitly confirmed test only sends fixed copy to the allowliste
   assert.equal(state.body.services.testSMS.enabled,true);
   assert.equal(JSON.stringify(state.body).includes("+19035551234"),false);
 });
+
+test("persona rehearsal is auth protected, limited to three scopes, and never scores a couple",async()=>{
+ const noSession=await call(req("POST",{action:"rehearse-persona",persona:"sophia",prompt:"A fictional spouse feels unheard."}));
+ assert.equal(noSession.res.status,401);
+ const invalid=await call(withCookie("rehearse-persona",globalThis.validCookie,{persona:"hidden-mode",prompt:"Invent a new role."}));
+ assert.equal(invalid.res.status,400);
+ const empty=await call(withCookie("rehearse-persona",globalThis.validCookie,{persona:"sophia",prompt:"x"}));
+ assert.equal(empty.res.status,400);
+ let count=0;
+ const instructions=[];
+ globalThis.fetch=async(url,init)=>{
+   count++;
+   assert.equal(url,"https://api.openai.com/v1/responses");
+   const input=JSON.parse(init.body);
+   assert.equal(input.store,false);
+   assert.equal(input.max_output_tokens,220);
+   assert.match(input.instructions,/FICTIONAL rehearsal prompt/);
+   instructions.push(input.instructions);
+   return new Response(JSON.stringify({
+     model:"gpt-4.1-mini",output:[{type:"message",content:[{type:"output_text",text:"Test response only."}]}]
+   }),{status:200});
+ };
+ for(const persona of ["sophia","paraclete","threefold"]){
+   const r=await call(withCookie("rehearse-persona",globalThis.validCookie,{
+     persona,prompt:"A fictional couple needs a creative, thoughtful conversation."}));
+   assert.equal(r.body.ok,true);assert.equal(r.body.persona,persona);
+   assert.match(r.body.disclaimer,/No objective scores/);
+   assert.equal(r.body.output,"Test response only.");
+ }
+ assert.equal(count,3);
+ assert.match(instructions[0],/Deep Dive/);
+ assert.match(instructions[1],/babysitter|childcare/);
+ assert.match(instructions[2],/milestone/);
+ assert.equal(new Set(instructions).size,3);
+});
+test("curriculum metadata is eight chapters, fixed mastery six choices and analytics are clearly fictional",()=>{
+ const vm=await import("node:vm");
+ const global={};
+ vm.runInNewContext(readFileSync(resolve(root,"admin/studio-blueprint.js"),"utf8"),{window:global});
+ const blueprint=global.THREEFOLD_STUDIO_BLUEPRINT;
+ assert.equal(blueprint.dive.milestones,8);
+ assert.equal(blueprint.dive.masteryChapter,7);
+ assert.equal(blueprint.dive.chapters.length,8);
+ assert.equal(blueprint.dive.chapters[6].type,"mastery");
+ assert.equal(blueprint.dive.measurableObjectives.length,4);
+ assert.ok(blueprint.dive.guardrails.some(g=>g.includes("Off-topic")));
+ assert.ok(blueprint.sampleCohort.every(c=>c.id.startsWith("EX-")));
+ const pages=readFileSync(resolve(root,"admin/index.html"),"utf8");
+ for(const tab of ["sophia","paraclete","threefold","deepdives","couples"]){
+   assert.match(pages,new RegExp('data-studio-page="'+tab+'"'));
+   assert.match(pages,new RegExp('data-studio-tab="'+tab+'"'));
+ }
+ assert.match(pages,/FICTIONAL EXAMPLES/);
+ const browser=readFileSync(resolve(root,"admin/studio.js"),"utf8");
+ assert.doesNotThrow(()=>new Function(browser));
+ assert.match(browser,/scoreMastery/);
+ assert.match(browser,/rehearse-persona/);
+ assert.doesNotMatch(browser,/TELNYX_API_KEY|OPENAI_API_KEY/);
+});
 test("admin html is noindex and the script has no inline secrets",()=>{
  const html=readFileSync(resolve(root,"admin/index.html"),"utf8");
  const js=readFileSync(resolve(root,"admin/admin.js"),"utf8");
