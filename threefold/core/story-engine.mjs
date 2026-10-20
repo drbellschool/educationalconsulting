@@ -29,6 +29,10 @@ export function transition(input,event){
   if(!validState(state))return result(input,"REJECTED","Invalid or incompatible story state; must be reviewed.");
   if(!event||typeof event!=="object"||typeof event.type!=="string")
     return result(state,"REJECTED","Expected a known event.");
+  if(event.type==="START"){
+    return input?result(state,"REJECTED","Story already started."):
+      result(state,"STARTED","Start at Chapter 1 with no objectives yet demonstrated.");
+  }
   if(event.type==="SAFETY"){
     state.paused=true;
     return result(state,"SAFETY_PAUSED","Pause the story. Prioritize immediate safety and real-world help where appropriate.");
