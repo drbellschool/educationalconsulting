@@ -25,6 +25,7 @@
       button.classList.toggle("active",active);
       if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");
     });
+    $("studioIntro").hidden=tab!=="overview";
     $("studioBreadcrumb").textContent=tab==="overview"?"PRIVATE STUDIO":
       ({sophia:"SOPHIA",paraclete:"PARACLETE",threefold:"THREEFOLD",deepdives:"DEEP DIVE OBJECTIVES",couples:"COUPLE INSIGHTS"})[tab];
     window.scrollTo(0,0);
