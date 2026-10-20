@@ -89,7 +89,7 @@ function providerStatus() {
     telnyx: { configured: !!env("TELNYX_API_KEY"), senderConfigured: /^\+[1-9]\d{7,14}$/.test(env("TELNYX_FROM_NUMBER")),
       senderLast4: (env("TELNYX_FROM_NUMBER").match(/\d{4}$/)||[])[0] || null },
     database: { configured: false, stage: "Awaiting Supabase recovery or replacement" },
-    messaging: { enabled: false, reason: "Outbound customer SMS is intentionally disabled until consent records and a durable SQL outbox are live." ,
+    messaging: { enabled: false, reason: "Outbound customer SMS is intentionally disabled until consent records and a durable SQL outbox are live." },
     testSMS: testSMSSettings()
   };
 }
