@@ -59,8 +59,8 @@ window.THREEFOLD_STUDIO_BLUEPRINT = Object.freeze({
       {n:4,title:"A Plan of Their Own",objective:"Own an earlier promise and communicate as a united couple.",evidence:"Select one of six responses and explore what accountability does.",type:"guided",focus:["J","O","B"]},
       {n:5,title:"The First Phone Call",objective:"Accept a parent's disappointment without fixing it by breaking a shared agreement.",evidence:"Identify that feelings can be heard while a respectful boundary stands.",type:"story"},
       {n:6,title:"Pressure on the Line",objective:"Recognize defensiveness and prepare for respectful boundary-setting.",evidence:"Name the difference between support and making Jill carry the blame.",type:"story"},
-      {n:7,title:"The Moment of Choice",objective:"Independently demonstrate joint ownership, accountability and a respectful boundary under pressure.",evidence:"Choose one of six fixed options without a pre-choice hint; use the versioned mastery rubric.",type:"mastery",focus:["J","O","B","R"]},
-      {n:8,title:"A New Tradition",objective:"Connect the chosen consequence to a realistic, not falsely perfect ending.",evidence:"See a branching ending; reflect on repair and follow-through; mark the eighth crossing.",type:"closure"}
+      {n:7,title:"The Moment of Choice",objective:"Independently demonstrate joint ownership, accountability and a respectful boundary under pressure.",evidence:"Choose one of six fixed options without a pre-choice hint; use the versioned mastery rubric.",type:"mastery",focus:["J","O","B"]},
+      {n:8,title:"A New Tradition",objective:"Connect the chosen consequence to a realistic, not falsely perfect ending.",evidence:"See a branching ending; reflect on repair and follow-through; mark the eighth crossing.",type:"closure",focus:["R"]}
     ],
     choiceGrades:{
       0:{label:"Not yet demonstrated",description:"Poor choice is acknowledged and its consequence stays meaningful; offer one bounded repair practice."},
