@@ -124,3 +124,50 @@ When finished, turn \`THREEFOLD_TEST_SMS_ENABLED\` back off (or remove the varia
 - No sends occur merely by loading the page, logging in, checking Telnyx credentials, or running OpenAI.
 - The endpoint does **not** query actual 10DLC status; that's a manual prerequisite.
 - This pilot test cannot establish delivery without reading provider delivery events or inspecting the phone.
+
+
+## Threefold orchestration studio — Sophia, Paraclete and objective-based Deep Dives
+
+The authenticated Vercel administrator page at \`/admin/\` has these navigable sections:
+
+| Section | Purpose | Current data |
+| --- | --- | --- |
+| Overview | OpenAI/Telnyx connection checks, restricted single-phone SMS rehearsal, provider health | Real settings, not live customer metrics |
+| Sophia | Relationship companion: Love Whispers, fictional Deep Dive coaching, consent boundaries; **live fictional AI rehearsal** | OpenAI API if configured; no actual couple history |
+| Paraclete | Date and anniversary concierge, budgets, childcare, delegated tasks; **live fictional AI rehearsal** | OpenAI API if configured; no reservations |
+| Threefold | Internal routing and privacy/consent policies, progress ownership; **live fictional workflow rehearsal** | Versioned draft policies |
+| Deep Dive objectives | Eight milestones, four objectives, six-option Chapter 7 rubric and guardrails | Authored story blueprint and deterministic demo; NOT real participants |
+| Couple insights | Live SQL status plus a toggled, explicitly fictional sample cohort | Live statistics **unavailable** pending Supabase; examples are marked fictitious |
+
+### Ownership model
+
+**Sophia** is the outward-facing storyteller and Love Whisper companion; **Paraclete** handles dates/logistics, and **Threefold** owns the state machine, learning rubric, consent controls, shared progress and routing between personas. Sofia or Paraclete must never gain direct access to another spouse's private thoughts merely because they share a couple ID.
+
+A Deep Dive is NOT a generic open-ended therapy chatbot. It consists of eight visible authored story milestones, with versioned measurable objectives and six explicit choices at critical decisions. Goals for *Christmas Tug-of-War* are joint decision-making, accountability for one's behavior, respectful boundary-setting, and repair/follow-through. In Chapter 7, an independent unhinted choice tests the first three; Chapter 8 reflects on realistic repair, not a falsely perfect ending.
+
+### Deterministic server-side engine foundation
+
+\`threefold/core/story-engine.mjs\` is a **not-yet-live** deterministic, pure state transition module (outside the Vercel public/static root). It demonstrates the rules we will enforce after hooking it up to authenticated SQL events:
+
+- Story version and milestone fixed; decisions can occur only in their designated chapter.
+- Fixed options have authored quality scores (0 = not yet, 1 = developing, 2 = demonstrated). AI must never change the scores.
+- One bounded repair practice on an eligible poor guided choice; cannot overwrite an original choice, grant extra credit, or loop indefinitely.
+- Off-topic messages acknowledge at most one short detour, then return to the SAME chapter. Paraclete can receive a separately authorized planning handoff without silently advancing the story.
+- Safety concerns pause story progression and require an explicit clearance process before the same chapter can resume.
+- *Chapter completion* is different from *mastery*. Neither is a diagnosis or evaluation of the real marriage.
+
+This foundation is covered by \`threefold/app/tests/story-engine.test.mjs\`. It is **not yet wired to real participant sessions**; no database or live SMS traffic is touched.
+
+### Privacy-first aggregate reporting
+
+The final SQL-backed admin should show consent and couple-link status, activities per couple, Whisper completions (counts, not private text), date plans vs verified completions, chapter completion percentages, fiction-choice mastery distribution, repair frequency and pause/handoff states. By default, the admin must NOT display individual intimate Whisper answers, freeform relationship conversations or cross-spouse private history. Aggregate trends are educational-product engagement statistics, not a "marriage health score."
+
+The current Couple insights tab intentionally shows **no real numbers**. A separate toggle shows fictional rows labeled "Sample Couple A–D" and metrics solely to validate UI/report structure.
+
+### Live rehearsal limits
+
+The \`rehearse-persona\` admin API action is restricted to authenticated administrators and a fixed enum \`sophia|paraclete|threefold\`; prompts are fiction-only and limited to 600 characters. The **server** supplies each persona's instructions, bounds response length, and calls OpenAI with \`store:false\`. It does not change a goal, record a real couple outcome or send SMS. Usage may incur OpenAI API charges. Persona voices are still being tuned; scripted workflow rules, not prompt instructions alone, must enforce sensitive actions and learning outcomes.
+
+### Still to connect
+
+After Supabase access returns, create authentic per-user/couple states and event tables, Row Level Security, server-side story transitions, consent-aware routing with explicit partner sharing, event-driven aggregate views, and authorized admin authentication. Before launching a Deep Dive, the learning objectives and specific approved story version should be immutable within that participant's session even when the content library is revised later.
