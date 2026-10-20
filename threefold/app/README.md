@@ -91,3 +91,36 @@ Scope these variables to the right Vercel environments (Production; Preview too 
 All POSTs require JSON, the matching request Origin and \`X-Threefold-Admin: 1\`. Provider keys are retrieved in the Vercel function only. The endpoint does not include any SMS send action, public chat API or webhook activation.
 
 This is **not yet** the live Telnyx SMS backend from the separate, unmerged Supabase draft. Never repoint Telnyx production webhooks to this admin function.
+
+
+## One-number Telnyx SMS test (not customer sending)
+
+The authenticated Threefold Studio now includes **Send one test text**. This is a temporary, deliberately restricted connectivity check before the full SQL-backed SMS system is live. There is no general-purpose "send to anyone" endpoint: the server constructs a fixed welcome message and sends it only to one predetermined, allowlisted phone number.
+
+**Telnyx prerequisite:** U.S. local 10DLC application messaging must be attached to an approved campaign with the sending number assigned. The Vercel \`THREEFOLD_10DLC_APPROVED\` flag is **your own explicit attestation**, not a carrier API verification. Never enable it until the campaign status is approved and number assignment has been confirmed inside Telnyx.
+
+### Configure the locked test
+
+Open Vercel > \`threefold-preview\` > Settings > Environment Variables and set:
+
+| Name | Value | Target |
+| --- | --- | --- |
+| \`THREEFOLD_TEST_SMS_TO\` | **Your own mobile number** in E.164, e.g. \`+1XXXXXXXXXX\`. Not the sending number. Mark **Secret/Sensitive**. | Production |
+| \`THREEFOLD_10DLC_APPROVED\` | Exactly \`true\` **only after independently verifying** approved campaign + number assignment. Otherwise leave unset/false. | Production |
+| \`THREEFOLD_TEST_SMS_ENABLED\` | Exactly \`true\` to open the temporary restricted send gate; leave unset/false until you are ready to test. | Production |
+
+\`TELNYX_FROM_NUMBER\` (\`+19036090465\`) and \`TELNYX_API_KEY\` were already configured. Add all three of the new settings privately; **do not paste personal phone numbers or keys into GitHub or chat**. Redeploy Production after changing variables to make them available to the server.
+
+Sign in at \`https://threefold-preview.vercel.app/admin/\`. The test panel will show the **last four digits** of the allowlisted recipient if configured. Review the fixed message, affirm that the number is your own, explicitly consent to this one SMS, confirm verified 10DLC approval, and type \`SEND ONE TEST\`. The client presents a final confirmation dialogue and calls the protected server endpoint once. Each new click is a new potentially billable request, so **do not resend if delivery is uncertain**.
+
+An accepted/queued result from \`POST https://api.telnyx.com/v2/messages\` is not proof of handset delivery. Check the receiving phone and Telnyx's message delivery status. If the request times out, treat the outcome as uncertain and investigate in Telnyx before attempting any more messages.
+
+When finished, turn \`THREEFOLD_TEST_SMS_ENABLED\` back off (or remove the variable) and redeploy. There is no durable SQL audit, cross-instance rate limit, inbound message handling, recurring sending or automatic retry for this temporary check. Do not use it for customer traffic.
+
+### Safety properties
+- Fixed, non-editable SMS body includes STOP instructions. The browser cannot supply text or override the allowlisted recipient.
+- The server checks authenticated admin session, same-origin POST, predefined acknowledgment string, three explicit affirmations, valid U.S. E.164 sender/recipient, different sender/recipient, carrier-attested flag and explicit enabled flag.
+- The browser and API return masked destination last four digits only; keys and destination number remain in Vercel.
+- No sends occur merely by loading the page, logging in, checking Telnyx credentials, or running OpenAI.
+- The endpoint does **not** query actual 10DLC status; that's a manual prerequisite.
+- This pilot test cannot establish delivery without reading provider delivery events or inspecting the phone.
