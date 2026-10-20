@@ -3,6 +3,19 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
 const COOKIE = "threefold_admin_session";
+const TEST_SMS_TEXT = "Threefold test: The adventure awaits! This is a single administrator-requested connectivity check, not an ongoing subscription. Reply STOP to opt out.";
+const US_MOBILE_FORMAT = /^\+1[2-9]\d{2}[2-9]\d{6}$/;
+function testSMSSettings() {
+  const recipient = env("THREEFOLD_TEST_SMS_TO");
+  const sender = env("TELNYX_FROM_NUMBER");
+  return {
+    recipientReady: US_MOBILE_FORMAT.test(recipient) && recipient !== sender,
+    recipientLast4: (recipient.match(/\d{4}$/) || [])[0] || null,
+    carrierApproved: env("THREEFOLD_10DLC_APPROVED") === "true",
+    enabled: env("THREEFOLD_TEST_SMS_ENABLED") === "true",
+    messagePreview: TEST_SMS_TEXT
+  };
+}
 const SESSION_TTL = 60 * 60 * 2;
 const HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
@@ -76,7 +89,8 @@ function providerStatus() {
     telnyx: { configured: !!env("TELNYX_API_KEY"), senderConfigured: /^\+[1-9]\d{7,14}$/.test(env("TELNYX_FROM_NUMBER")),
       senderLast4: (env("TELNYX_FROM_NUMBER").match(/\d{4}$/)||[])[0] || null },
     database: { configured: false, stage: "Awaiting Supabase recovery or replacement" },
-    messaging: { enabled: false, reason: "Outbound customer SMS is intentionally disabled until consent records and a durable SQL outbox are live." }
+    messaging: { enabled: false, reason: "Outbound customer SMS is intentionally disabled until consent records and a durable SQL outbox are live." },
+    testSMS: testSMSSettings()
   };
 }
 async function readError(response) {
@@ -130,6 +144,40 @@ async function telnyxCheck() {
     return {ok:false,message:err?.name==="AbortError"?"Telnyx timed out.":"Could not connect to Telnyx."};
   }finally{clearTimeout(timeout);}
 }
+// Fixed, allowlisted, human-triggered Telnyx test; NEVER a general SMS send API.
+// A successful Telnyx API response means accepted/queued, not handset delivered.
+async function sendOneTestSMS() {
+  const settings = testSMSSettings();
+  if (!settings.enabled || !settings.carrierApproved || !settings.recipientReady)
+    return {ok:false,message:"SMS test remains locked: enable the test, verify approved 10DLC, and allowlist your own phone number in Vercel."};
+  if (!env("TELNYX_API_KEY") || !US_MOBILE_FORMAT.test(env("TELNYX_FROM_NUMBER")))
+    return {ok:false,message:"Telnyx sending configuration is incomplete."};
+  const controller = new AbortController();
+  const timeout = setTimeout(()=>controller.abort(),14000);
+  try {
+    const response = await fetch("https://api.telnyx.com/v2/messages",{
+      method:"POST",signal:controller.signal,
+      headers:{Authorization:"Bearer "+env("TELNYX_API_KEY"),
+        "Content-Type":"application/json",Accept:"application/json"},
+      body:JSON.stringify({from:env("TELNYX_FROM_NUMBER"),
+        to:env("THREEFOLD_TEST_SMS_TO"),text:TEST_SMS_TEXT})
+    });
+    if(!response.ok)return {ok:false,message:await readError(response),status:response.status,
+      note:"No automatic retry. Inspect Telnyx before sending another test."};
+    const result=await response.json();
+    const messageId=result?.data?.id;
+    return {ok:true,message:"Telnyx accepted the one-message test request. Delivery has NOT been confirmed.",
+      providerMessageId:typeof messageId==="string"?messageId.slice(0,100):null,
+      recipientLast4:settings.recipientLast4,
+      note:"Check your phone and the Telnyx messaging logs for delivery. Do not press Send again until the result is known."};
+  }catch(err){
+    return {ok:false,message:err?.name==="AbortError"
+      ?"Telnyx timed out: the send outcome is uncertain. Check Telnyx activity before retrying."
+      :"Could not confirm the send outcome. Check Telnyx activity before retrying.",
+      outcomeUncertain:true};
+  }finally{clearTimeout(timeout);}
+}
+
 export default {
   async fetch(request) {
     if (!["GET","POST"].includes(request.method)) return json({error:"Method not allowed."},405,{Allow:"GET, POST"});
@@ -157,6 +205,14 @@ export default {
       return json(await openAIRequest(prompt.trim(),true));
     }
     if(action==="check-telnyx")return json(await telnyxCheck());
+    if(action==="send-test-sms"){
+      // Never accept a caller-supplied number or text. A malicious caller cannot turn
+      // this operation into a bulk SMS route, even with a stolen admin session.
+      if(body.confirmation!=="SEND ONE TEST"||body.ownPhone!==true||
+        body.expressConsent!==true||body.carrierStatusVerified!==true)
+        return json({error:"Explicit ownership, consent and carrier-approval confirmations are required."},400);
+      return json(await sendOneTestSMS());
+    }
     return json({error:"Unknown admin action."},400);
   }
 };
