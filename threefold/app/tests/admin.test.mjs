@@ -10,7 +10,7 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 const password="A-Very-Long-Private-Demo-Password-For-Testing";
 const secret="not-a-production-key-0123456789-testing-only-0123456789";
 const previous={};
-for(const k of ["THREEFOLD_ADMIN_PASSWORD","THREEFOLD_SESSION_SECRET","OPENAI_API_KEY","TELNYX_API_KEY","TELNYX_FROM_NUMBER","OPENAI_MODEL"]){
+for(const k of ["THREEFOLD_ADMIN_PASSWORD","THREEFOLD_SESSION_SECRET","OPENAI_API_KEY","TELNYX_API_KEY","TELNYX_FROM_NUMBER","OPENAI_MODEL","THREEFOLD_TEST_SMS_TO","THREEFOLD_TEST_SMS_ENABLED","THREEFOLD_10DLC_APPROVED"]){
  previous[k]=process.env[k];delete process.env[k];
 }
 const priorFetch=globalThis.fetch;
@@ -111,6 +111,63 @@ test("connection tests use server-only credentials and never transmit SMS",async
  assert.equal(sms.body.profileCountReturned,1);
  assert.equal(aiCalls,2);assert.equal(telnyxCalls,1);assert.equal(sendAttempts,0);
  assert.equal(JSON.stringify(sms.body).includes("test-telnyx-key-fake"),false);
+});
+
+test("test-SMS fails closed before approval, cannot target arbitrary phones or send custom text",async()=>{
+  const consent={confirmation:"SEND ONE TEST",ownPhone:true,expressConsent:true,carrierStatusVerified:true};
+  process.env.TELNYX_API_KEY="fake-closed-test-key";
+  process.env.TELNYX_FROM_NUMBER="+19036090465";
+  let networkCalls=0;
+  globalThis.fetch=async()=>{networkCalls++;throw Error("Must not send a message");};
+  let result=await call(withCookie("send-test-sms",globalThis.validCookie,consent));
+  assert.equal(result.body.ok,false);
+  assert.equal(networkCalls,0);
+
+  process.env.THREEFOLD_TEST_SMS_TO="+19035551234";
+  process.env.THREEFOLD_TEST_SMS_ENABLED="true";
+  result=await call(withCookie("send-test-sms",globalThis.validCookie,consent));
+  assert.equal(result.body.ok,false,"Missing campaign approval must not send");
+  assert.equal(networkCalls,0);
+
+  process.env.THREEFOLD_10DLC_APPROVED="true";
+  result=await call(withCookie("send-test-sms",globalThis.validCookie,{...consent,ownPhone:false}));
+  assert.equal(result.res.status,400);
+  result=await call(withCookie("send-test-sms",globalThis.validCookie,{...consent,expressConsent:false}));
+  assert.equal(result.res.status,400);
+  result=await call(withCookie("send-test-sms",globalThis.validCookie,{...consent,confirmation:"SEND TWO TESTS"}));
+  assert.equal(result.res.status,400);
+  assert.equal(networkCalls,0);
+});
+test("approved explicitly confirmed test only sends fixed copy to the allowlisted number",async()=>{
+  let count=0;
+  globalThis.fetch=async(url,init)=>{
+    count++;
+    assert.equal(url,"https://api.telnyx.com/v2/messages");
+    assert.equal(init.method,"POST");
+    const body=JSON.parse(init.body);
+    assert.deepEqual(Object.keys(body).sort(),["from","text","to"]);
+    assert.equal(body.from,"+19036090465");
+    assert.equal(body.to,"+19035551234");
+    assert.match(body.text,/Threefold test: The adventure awaits/);
+    assert.match(body.text,/STOP/);
+    assert.ok(!body.text.includes("INJECTED"));
+    return new Response(JSON.stringify({data:{id:"test-accepted-message-id"}}),{status:202});
+  };
+  const payload={confirmation:"SEND ONE TEST",ownPhone:true,expressConsent:true,
+    carrierStatusVerified:true,recipient:"+19998887777",text:"INJECTED"};
+  const result=await call(withCookie("send-test-sms",globalThis.validCookie,payload));
+  assert.equal(count,1);
+  assert.equal(result.body.ok,true);
+  assert.equal(result.body.providerMessageId,"test-accepted-message-id");
+  assert.match(result.body.message,/NOT been confirmed/);
+  assert.equal(result.body.recipientLast4,"1234");
+  assert.equal(JSON.stringify(result.body).includes("fake-closed-test-key"),false);
+
+  const state=await call(req("GET",null,{headers:{cookie:globalThis.validCookie}}));
+  assert.equal(state.body.services.testSMS.recipientReady,true);
+  assert.equal(state.body.services.testSMS.carrierApproved,true);
+  assert.equal(state.body.services.testSMS.enabled,true);
+  assert.equal(JSON.stringify(state.body).includes("+19035551234"),false);
 });
 test("admin html is noindex and the script has no inline secrets",()=>{
  const html=readFileSync(resolve(root,"admin/index.html"),"utf8");
