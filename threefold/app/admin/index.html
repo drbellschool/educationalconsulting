@@ -5,14 +5,24 @@
 <meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#f5f1e9">
 <title>Threefold | Private Studio</title>
 <link rel="stylesheet" href="./admin.css">
+<script src="../content.js" defer></script>
+<script src="./studio-blueprint.js" defer></script>
 <script src="./admin.js" defer></script>
+<script src="./studio.js" defer></script>
 </head>
 <body>
 <div class="shell">
   <aside class="nav">
     <a class="identity" href="../"><span class="mark" aria-hidden="true">✳</span><span class="identity-name">threefold<small>THE MARRIAGE PROJECT</small></span></a>
     <div class="chapter-label">PRIVATE STUDIO</div>
-    <div class="nav-item active"><span class="nav-icon">⌂</span> Studio overview</div>
+    <nav id="studioNav" aria-label="Administration" hidden>
+      <button type="button" class="nav-item active" data-studio-tab="overview" aria-current="page"><span class="nav-icon">⌂</span> Studio overview</button>
+      <button type="button" class="nav-item" data-studio-tab="sophia"><span class="nav-icon">✧</span> Sophia</button>
+      <button type="button" class="nav-item" data-studio-tab="paraclete"><span class="nav-icon">↗</span> Paraclete</button>
+      <button type="button" class="nav-item" data-studio-tab="threefold"><span class="nav-icon">◌</span> Threefold</button>
+      <button type="button" class="nav-item" data-studio-tab="deepdives"><span class="nav-icon">≋</span> Deep Dive objectives</button>
+      <button type="button" class="nav-item" data-studio-tab="couples"><span class="nav-icon">♧</span> Couple insights</button>
+    </nav>
     <a class="nav-item" href="../"><span class="nav-icon">↗</span> Couple experience</a>
     <div class="aside-footer">
       <p>What happens behind the scenes should feel just as intentional as what a couple sees.</p>
@@ -20,12 +30,15 @@
     </div>
   </aside>
   <div class="main-wrap">
-    <header class="topbar"><span class="crumb">THREEFOLD <i>/</i> PRIVATE STUDIO</span><div class="header-actions"><span class="private-pill"><span class="pulse"></span> RESTRICTED</span><button type="button" id="logout" class="text-button" hidden>Sign out ↗</button></div></header>
+    <header class="topbar"><span class="crumb">THREEFOLD <i>/</i> <span id="studioBreadcrumb">PRIVATE STUDIO</span></span><div class="header-actions"><span class="private-pill"><span class="pulse"></span> RESTRICTED</span><button type="button" id="logout" class="text-button" hidden>Sign out ↗</button></div></header>
     <main>
+      <div id="studioIntro">
       <div class="eyebrow">THE MARRIAGE PROJECT / OPERATIONS</div>
       <h1>Behind every<br><em>beautiful adventure.</em></h1>
       <p class="lead">A quiet place to configure the technology that makes Threefold feel personal.</p>
       <div class="notice"><strong>Development environment.</strong> Customer enrollment, outbound SMS, payment processing and live couple data are not activated. Provider tests require an authenticated administrator.</div>
+
+      </div>
 
       <section class="panel auth-panel" id="loginPanel">
         <div class="panel-top"><div><div class="eyebrow">ADMINISTRATOR ACCESS</div><h2>Welcome to the studio.</h2></div><span class="ornament">✧</span></div>
@@ -39,6 +52,7 @@
       </section>
 
       <div id="dashboard" hidden>
+        <section data-studio-page="overview" class="studio-page">
         <div class="stats-grid">
           <article class="stat"><span class="stat-caption">OPENAI</span><div class="stat-value" id="openaiStat">Checking…</div><small>Relationship companion engine</small></article>
           <article class="stat"><span class="stat-caption">TELNYX</span><div class="stat-value" id="telnyxStat">Checking…</div><small>Private SMS delivery</small></article>
@@ -99,6 +113,75 @@
           <article class="launch-step"><span>04</span><div><strong>Set up payments and domain</strong><p>Finish checkout, onboarding, and migrate to our permanent Threefold domain.</p></div></article>
         </section>
         <section class="bottom-note"><strong>Customer SMS stays disabled.</strong> A working API key does not authorize sending messages. We'll turn on customer delivery only after carrier approval, independent adult consent and SQL-based queue tracking are in place.</section>
+        </section>
+
+        <section data-studio-page="sophia" class="studio-page" hidden>
+          <div class="page-kicker">01 / THE RELATIONSHIP COMPANION</div>
+          <h2 class="studio-title">Meet <em>Sophia.</em></h2>
+          <p class="studio-lead">The warm, feminine voice of discovery. Sophia guides Love Whispers, solo reflections and fictional Deep Dive coaching—but Threefold owns the curriculum.</p>
+          <div class="studio-two-col">
+            <article class="panel no-top"><span class="eyebrow">HER RESPONSIBILITIES</span><div id="sophiaBrief" class="brief-items"></div><h3 class="mini-title">Boundaries</h3><div id="sophiaLimits" class="quiet-list"></div></article>
+            <article class="panel no-top"><span class="eyebrow">LIVE OPENAI REHEARSAL</span><h3 class="mini-title">Hear Sophia's voice</h3><p class="soft-text">Only fictional prompts. Test messages are sent to OpenAI—not your customers.</p><label for="sophiaPrompt">Fictional situation</label><textarea id="sophiaPrompt" maxlength="600" rows="5"></textarea><button type="button" class="button primary persona-run" data-persona="sophia">Rehearse Sophia ✧</button><div id="sophiaReply" class="persona-reply" role="status">Her response will appear here.</div></article>
+          </div>
+          <article class="panel"><span class="eyebrow">OWNERSHIP AND HANDOFF</span><div class="handoff" id="sophiaHandoff"></div></article>
+        </section>
+
+        <section data-studio-page="paraclete" class="studio-page" hidden>
+          <div class="page-kicker">02 / THE ADVENTURE CONCIERGE</div>
+          <h2 class="studio-title">Meet <em>Paraclete.</em></h2>
+          <p class="studio-lead">The organizer that transforms sweet ideas into dates and memorable experiences, with budgets, childcare checklists, follow-ups and explicit permission.</p>
+          <div class="studio-two-col">
+            <article class="panel no-top"><span class="eyebrow">PLANNING RESPONSIBILITIES</span><div id="paracleteBrief" class="brief-items"></div><h3 class="mini-title">Boundaries</h3><div id="paracleteLimits" class="quiet-list"></div></article>
+            <article class="panel no-top"><span class="eyebrow">LIVE OPENAI REHEARSAL</span><h3 class="mini-title">Try a practical date plan</h3><p class="soft-text">Sample scenarios only; this cannot book, charge or message anyone.</p><label for="paracletePrompt">Fictional request</label><textarea id="paracletePrompt" maxlength="600" rows="5"></textarea><button type="button" class="button primary persona-run" data-persona="paraclete">Rehearse Paraclete ↗</button><div id="paracleteReply" class="persona-reply" role="status">The proposed plan will appear here.</div></article>
+          </div>
+          <article class="panel"><span class="eyebrow">A DATE HAS TO ACTUALLY HAPPEN</span><div class="workflow-steps"><span>Collect constraints</span><b>→</b><span>Propose options</span><b>→</b><span>Confirm responsibilities</span><b>→</b><span>Follow up</span><b>→</b><span>Mark completed</span></div></article>
+        </section>
+
+        <section data-studio-page="threefold" class="studio-page" hidden>
+          <div class="page-kicker">03 / THE ORCHESTRATION ENGINE</div>
+          <h2 class="studio-title">Threefold <em>directs the journey.</em></h2>
+          <p class="studio-lead">It decides which companion should speak, enforces consent and learning requirements, and manages each person's milestones and the couple's shared progress.</p>
+          <div class="panel"><span class="eyebrow">EXPERIENCE ROUTER — DESIGN RULES</span><div class="routing-table"><table><thead><tr><th>Moment</th><th>Who leads?</th><th>Threefold enforces</th></tr></thead><tbody id="routerRows"></tbody></table></div></div>
+          <div class="studio-two-col">
+            <article class="panel no-top"><span class="eyebrow">PRIVACY RULES</span><div id="privacyRules" class="brief-items"></div></article>
+            <article class="panel no-top"><span class="eyebrow">LIVE ORCHESTRATION REHEARSAL</span><h3 class="mini-title">Try the director</h3><p class="soft-text">A test of routing and scope, not a connected couple workflow.</p><label for="threefoldPrompt">Fictional orchestration scenario</label><textarea id="threefoldPrompt" maxlength="600" rows="5"></textarea><button type="button" class="button primary persona-run" data-persona="threefold">Rehearse Threefold ◌</button><div id="threefoldReply" class="persona-reply" role="status">A suggested handoff will appear here.</div></article>
+          </div>
+        </section>
+
+        <section data-studio-page="deepdives" class="studio-page" hidden>
+          <div class="page-kicker">04 / LEARNING DESIGN & MASTERY</div>
+          <h2 class="studio-title">A story with <em>a purpose.</em></h2>
+          <p class="studio-lead">Sophia tells the story. Threefold keeps the experience anchored to published goals, bounded branching, measurable fictional choices and a hint-free mastery moment.</p>
+          <div class="notice"><strong>Curriculum design preview.</strong> These objectives are versioned in code. Live learner records and authoring/publishing controls will require the SQL database.</div>
+          <article class="panel">
+            <div class="panel-top"><div><span class="eyebrow">CHRISTMAS TUG-OF-WAR · VERSION 1.0</span><h3 class="mini-title">Four measurable learning objectives</h3></div><span class="state-label ready">8 story milestones</span></div>
+            <div id="objectiveCards" class="objective-cards"></div>
+          </article>
+          <div class="studio-two-col wide-left">
+            <article class="panel no-top"><span class="eyebrow">MILESTONE INSPECTOR</span><label for="chapterSelector">Select one of eight milestones</label><select id="chapterSelector"></select><div id="chapterInspector" class="chapter-inspector"></div><h3 class="mini-title">Chapter guardrails</h3><div id="diveGuardrails" class="quiet-list"></div></article>
+            <article class="panel no-top"><span class="eyebrow">FIXED-CHOICE MASTERY SIMULATOR</span><h3 class="mini-title">Review Chapter 7</h3><p class="soft-text">Select the fictional choice a participant might make. Threefold scores the fixed choice against the versioned rubric; Sophia may explain, but cannot override the result.</p><label for="masteryChoice">Participant's independent choice</label><select id="masteryChoice"></select><button type="button" class="button primary" id="scoreMastery">Preview rubric result ↗</button><div id="masteryOutcome" class="persona-reply" role="status">Select a choice to inspect the learning outcome.</div></article>
+          </div>
+          <article class="panel"><span class="eyebrow">WHAT THE ENGINE MUST RECORD</span><div id="diveTracking" class="tag-cloud"></div></article>
+        </section>
+
+        <section data-studio-page="couples" class="studio-page" hidden>
+          <div class="page-kicker">05 / PRIVACY-FIRST ANALYTICS</div>
+          <h2 class="studio-title">Every couple. <em>No guessing.</em></h2>
+          <p class="studio-lead">View enrollment, Love Whispers, date completions, Deep Dive milestones, and where experiences need attention—without turning intimate answers into administrative statistics.</p>
+          <div class="notice"><strong>Not connected to customer data.</strong> Live counts are unavailable until Supabase has been restored or replaced. The table below contains clearly fictional records solely to preview the reporting design.</div>
+          <div class="analytics-switch"><button type="button" class="button" id="showLiveStats" aria-pressed="true">Live data status</button><button type="button" class="button secondary" id="showDemoStats" aria-pressed="false">Illustrative sample cohort</button></div>
+          <div id="liveCouples">
+            <div class="stats-grid"><article class="stat"><span class="stat-caption">DATABASE CONNECTION</span><div class="stat-value muted">Not connected</div><small>No query has been run</small></article><article class="stat"><span class="stat-caption">ENROLLED COUPLES</span><div class="stat-value muted">—</div><small>Unknown; not zero</small></article><article class="stat"><span class="stat-caption">DEEP DIVE MASTERY</span><div class="stat-value muted">—</div><small>No learner records available</small></article><article class="stat"><span class="stat-caption">DATES COMPLETED</span><div class="stat-value muted">—</div><small>No events available</small></article></div>
+            <div class="panel"><h3 class="mini-title">Waiting for SQL</h3><p class="soft-text">When the database is connected, this page will show aggregated, consent-aware couple records and results. We will not invent real metrics or copy one spouse's private messages into this view.</p></div>
+          </div>
+          <div id="demoCouples" hidden>
+            <div class="stats-grid" id="sampleStats"></div>
+            <article class="panel"><div class="panel-top"><div><span class="eyebrow">FICTIONAL EXAMPLES — NEVER REAL CUSTOMER RECORDS</span><h3 class="mini-title">Couple journey monitor</h3></div><span class="state-label">DEMO DATA</span></div>
+              <div class="routing-table"><table><thead><tr><th>Couple</th><th>Consent</th><th>Whispers</th><th>Dates</th><th>Deep Dive</th><th>Mastery</th><th>Next appropriate action</th></tr></thead><tbody id="sampleCoupleRows"></tbody></table></div>
+              <p class="hint">The future live dashboard will distinguish *completed story objectives* from participants' overall relationship health. No marital quality scores.</p>
+            </article>
+          </div>
+        </section>
       </div>
       <p class="global-message" id="globalStatus" role="status"></p>
     </main>

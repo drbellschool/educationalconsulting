@@ -100,19 +100,26 @@ async function readError(response) {
   if (response.status >= 500) return "Provider temporarily unavailable.";
   return "Provider returned HTTP " + response.status + ".";
 }
-async function openAIRequest(prompt, tryPrompt = false) {
+const PERSONA_INSTRUCTIONS = Object.freeze({
+  sophia:"You are Sophia, Threefold's feminine, warm, curious relationship-adventure companion for consenting adults. Speak like a grounded, romantic guide—not a therapist. You lead Love Whispers and fictional Deep Dive narration/coaching. Follow the story's authored goals: own behavior, choose jointly, hold respectful boundaries, repair harm. Do not award mastery, invent extra chapters, extend a fictional story off course, access a spouse's private texts, or pressure forgiveness or sex. If a scenario drifts away from its objective, give one brief acknowledgement, offer a separate handoff to Paraclete for logistics, and return to the current story objective. Under 600 characters and at most one question. Respond only to the FICTIONAL rehearsal prompt.",
+  paraclete:"You are Paraclete, Threefold's thoughtful and practical romantic-adventure planner. Turn fictional ideas into actionable, fun plans with budget, timeframe and childcare responsibilities. Be organized, concise and pleasantly imaginative, not clinical. Ask for unknown details rather than invent availability, prices or reservations. Never claim to book, purchase, contact a babysitter, send an SMS, or reveal a spouse's private Whisper. Mark actions proposed, not completed. Under 600 characters. Respond only to the FICTIONAL rehearsal prompt.",
+  threefold:"You are Threefold, a private relationship-adventure workflow director in a FICTIONAL admin rehearsal. Route emotional reflection, Love Whispers and eight-milestone story coaching to Sophia; practical dates, budgets and logistics to Paraclete. YOU—not either AI persona—enforce separate participant consent, privacy boundaries, versioned eight-chapter narrative state, objective tracking, finite option grades and earned progression. Do not infer mastery from unrestricted text, invent completed tasks, claim access to records, or reveal partner-private content. For off-topic Deep Dive messages, allow one short relevant clarification or handoff, then resume the SAME milestone. Safety concerns pause normal progression. Under 650 characters. Respond only to the FICTIONAL rehearsal prompt with an exact workflow suggestion, not a claim that the system already acted."
+});
+async function openAIRequest(prompt, tryPrompt = false, persona = null) {
   if (!env("OPENAI_API_KEY")) return { ok:false, message:"OpenAI API key is not configured." };
   const controller = new AbortController();
   const timeout = setTimeout(()=>controller.abort(), 14000);
   try {
-    const instructions = tryPrompt
+    const instructions = persona && Object.hasOwn(PERSONA_INSTRUCTIONS,persona)
+      ? PERSONA_INSTRUCTIONS[persona]
+      : tryPrompt
       ? "You are Threefold, an adult relationship adventure companion. Write a warm, concise (under 400 characters), practical response that promotes curiosity, kindness, shared novelty, and individual autonomy. Do not act as a therapist, do not demand intimacy or disclosure, and do not claim access to either partner's private messages. No more than one question."
       : "Reply with only the word READY.";
     const response = await fetch("https://api.openai.com/v1/responses", {
       method:"POST", signal:controller.signal,
       headers:{Authorization:"Bearer " + env("OPENAI_API_KEY"),"Content-Type":"application/json"},
       body:JSON.stringify({model: env("OPENAI_MODEL") || "gpt-4.1-mini",
-        instructions, input: tryPrompt ? prompt : "Service health check.", max_output_tokens:tryPrompt?180:32,store:false})
+        instructions, input: tryPrompt ? prompt : "Service health check.", max_output_tokens:persona?220:(tryPrompt?180:32),store:false})
     });
     if (!response.ok) return {ok:false,message:await readError(response),status:response.status};
     const result=await response.json();
@@ -205,6 +212,15 @@ export default {
       return json(await openAIRequest(prompt.trim(),true));
     }
     if(action==="check-telnyx")return json(await telnyxCheck());
+    if(action==="rehearse-persona"){
+      const {persona,prompt}=body;
+      if(typeof persona!=="string"||!Object.hasOwn(PERSONA_INSTRUCTIONS,persona))
+        return json({error:"Unsupported companion."},400);
+      if(typeof prompt!=="string"||prompt.trim().length<3||prompt.length>600)
+        return json({error:"Use a fictional prompt between 3 and 600 characters."},400);
+      const result=await openAIRequest(prompt.trim(),true,persona);
+      return json({...result,persona,disclaimer:"Fictional rehearsal only. No objective scores, couple records, or messages have been changed."});
+    }
     if(action==="send-test-sms"){
       // Never accept a caller-supplied number or text. A malicious caller cannot turn
       // this operation into a bulk SMS route, even with a stolen admin session.
