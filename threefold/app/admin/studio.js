@@ -35,8 +35,10 @@
     personaNames.forEach(id=>{
       const person=spec.personas[id];
       $(id+"Prompt").value=person.sample;
-      populate(id+"Brief",person.responsibilities,true);
-      if(id!=="threefold")populate(id+"Limits",person.limits);
+      if(id!=="threefold"){
+        populate(id+"Brief",person.responsibilities,true);
+        populate(id+"Limits",person.limits);
+      }
     });
     const flows=$("sophiaHandoff");
     flows.replaceChildren();
