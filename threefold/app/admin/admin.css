@@ -77,3 +77,17 @@ footer{border-top:1px solid var(--line);padding:20px clamp(22px,4.3vw,73px);lett
 @media(max-width:900px){.shell{grid-template-columns:1fr}.nav{position:static;height:auto;padding:18px;display:flex;flex-direction:row;align-items:center;gap:20px}.identity{margin:0 auto 0 0}.chapter-label,.nav-item,.aside-footer{display:none}.topbar{height:58px}.provider-grid{grid-template-columns:1fr}.provider>p{min-height:0}main{padding-top:32px}}
 @media(max-width:620px){.stats-grid,.launch-grid{grid-template-columns:1fr}.stat{min-height:100px}.topbar{padding:0 15px}.crumb{font-size:9px}.crumb i{padding:0 5px}.private-pill{padding:5px 8px;font-size:8px}main{padding:30px 17px 55px}.provider-head{gap:8px}.state-label{margin-left:0}.lead{font-size:14px}.notice{font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Restricted one-recipient, one-click SMS connectivity rehearsal */
+.test-sms-panel>p{color:#72776e;font-size:13px;line-height:1.75}
+.test-readiness{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:25px 0}
+.test-readiness>div{border:1px solid #e4dbcd;background:#f9f6f0;border-radius:10px;padding:14px}
+.test-readiness span{display:block;font-size:11px;color:#8b887f;margin-bottom:8px}
+.test-readiness strong{font-size:12px;color:#5e725d;line-height:1.4}
+.test-preview{border:1px solid #e1d8c7;background:#f6f0e6;border-radius:12px;padding:18px 22px;margin:20px 0}
+.test-preview p{font:italic 17px/1.6 var(--serif);margin:11px 0 0;color:#5c6358}
+.test-checks{display:grid;gap:8px}
+.test-checks .check-row{display:flex;gap:12px;align-items:start;border:1px solid #e5ded0;border-radius:10px;padding:13px 15px;margin:0;background:#fcfaf6;cursor:pointer;font-weight:450;line-height:1.5}
+.test-checks .check-row input{width:17px;min-width:17px;height:17px;accent-color:#637962;margin:3px 0 0;padding:0}
+#smsConfirm{max-width:340px;font-weight:650;letter-spacing:.07em}
+@media(max-width:750px){.test-readiness{grid-template-columns:1fr}}
