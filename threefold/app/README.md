@@ -1,3 +1,21 @@
+# Anthos · Threefold public-launch foundation
+
+**Public address:** https://anthos.love/ (Vercel project `threefold-preview`, Root Directory `threefold/app`).
+
+- `/`: public Anthos marketing page, featuring Four Ways, Sophia, Paraclete, and prominently disclosed Threefold SMS pilot status.
+- `/experience/`: existing **local-only** fictional interactive Threefold demo. It is not multiuser and must not receive actual customer data.
+- `/privacy/`: public privacy policy with SMS-specific privacy and consent disclosures.
+- `/terms/`: public terms and SMS disclosures.
+- `/admin/` and `/api/admin`: existing password-protected studio and limited service verification; their credentials and safeguards are unchanged.
+
+**Launch gate:** Telnyx campaign is currently rejected / not approved. SMS enrollment and outbound messaging must remain closed until carrier approval, number assignment, and consent storage are independently verified. Do not enable `THREEFOLD_10DLC_APPROVED` or `THREEFOLD_TEST_SMS_ENABLED` prematurely. Website publication is not equivalent to operational customer enrollment.
+
+**Before selling access:** restore or provision the intended backend and individual authentication, create durable opt-in/out proof per number, link couples securely, implement webhook safety and AI message privacy, conduct security/consent review, finalize support and payments, and update Telnyx campaign website to match public Anthos branding. Existing `lonestarteacher.com/threefold/` legacy URLs should remain available while that carrier submission is pending.
+
+**Checks:** `node --test threefold/app/tests/*.test.mjs`. Public, demo, story and admin guards should all pass.
+
+---
+
 # Threefold — Stage 1 Couple Experience
 
 A complete *interactive design prototype* for the first four product pillars, independent of the currently inaccessible Supabase project.
