@@ -6,7 +6,7 @@ import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const read=p=>fs.readFileSync(path.join(root,p),"utf8");
-const html=read("index.html"),source=read("app.js"),css=read("styles.css"),vercel=JSON.parse(read("vercel.json"));
+const html=read("experience/index.html"),source=read("app.js"),css=read("styles.css"),vercel=JSON.parse(read("vercel.json"));
 const context={window:{}};
 vm.runInNewContext(read("content.js"),context);
 const data=context.window.THREEFOLD_CONTENT;
@@ -57,7 +57,7 @@ test("demo clearly discloses local-only progress and keeps private share gated",
 test("Vercel root is deployable without framework runtime",()=>{
   assert.equal(vercel.version,2);
   assert.ok(vercel.headers.length);
-  assert.match(html,/\.\/styles\.css/);
-  assert.match(html,/\.\/content\.js/);
-  assert.match(html,/\.\/app\.js/);
+  assert.match(html,/\.\.\/styles\.css/);
+  assert.match(html,/\.\.\/content\.js/);
+  assert.match(html,/\.\.\/app\.js/);
 });
