@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Threefold | Administration</title>
+<style>
+:root{--cream:#fbf7ef;--ink:#18202b;--paper:#fffdf8;--line:#e8dfd0;--sage:#667b6b;--gold:#b58a45;--rose:#a9686a}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:radial-gradient(circle at 8% 8%,#e8d5b8,transparent 25rem),radial-gradient(circle at 90% 20%,#e6cac7,transparent 23rem),var(--cream);font:15px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:1060px;margin:auto;padding:28px 24px 80px}
+a{color:inherit}.brand{font:700 23px Georgia,serif;text-decoration:none}
+.nav{display:flex;justify-content:space-between;align-items:center}
+header{padding:50px 0 24px}.eyebrow{text-transform:uppercase;letter-spacing:.18em;color:var(--sage);font-weight:800;font-size:11px}
+h1{font:normal clamp(40px,7vw,66px) Georgia,serif;margin:5px 0}h2{font:normal 27px Georgia,serif;margin:5px 0 18px}
+p.lead{font-size:18px;color:#52585e;max-width:700px}
+.panel{background:var(--paper);border:1px solid var(--line);padding:26px;border-radius:20px;margin-top:18px}
+input{display:block;width:100%;max-width:520px;padding:12px 14px;font:inherit;border:1px solid #b4b8b8;border-radius:10px;margin:5px 0 16px}
+label{font-weight:700;display:block;margin-top:12px}
+button{cursor:pointer;border:0;border-radius:40px;padding:12px 17px;background:var(--ink);color:white;font-weight:800;margin:6px 8px 6px 0}
+button.outline{background:transparent;border:1px solid #c9c0b0;color:var(--ink)}
+button:disabled{opacity:.6;cursor:wait}.hint{color:#6d7279;font-size:13px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{border:1px solid var(--line);border-radius:14px;padding:19px;background:white}
+.metric{font:normal 37px Georgia,serif}.metric-label{font-size:13px;color:#697079}
+.status{margin-top:14px;font-weight:650}.error{color:#a13f4b}
+.audit-item{padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+footer{border-top:1px solid var(--line);padding-top:24px;margin-top:42px;color:#707780;font-size:13px}
+[hidden]{display:none!important}@media(max-width:750px){.grid{grid-template-columns:repeat(2,1fr)}.panel{padding:18px}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<main class="wrap">
+ <nav class="nav"><a class="brand" href="../">Threefold</a><a href="../">← Public website</a></nav>
+ <header><div class="eyebrow">The Marriage Project · Operations</div><h1>Threefold dashboard</h1>
+  <p class="lead">Couples, consent, messages and adventures—supported by a real SQL database and secured with Supabase authentication.</p></header>
+ <section class="panel" id="setup">
+  <h2>Connect your database</h2>
+  <p class="hint">Enter your Supabase project URL and <strong>publishable key</strong>. These are public application settings, not secret keys. They are saved only in this browser.</p>
+  <label for="project">Supabase project URL</label><input id="project" type="url" placeholder="https://YOUR-PROJECT.supabase.co" autocomplete="off">
+  <label for="pubkey">Supabase publishable key</label><input id="pubkey" type="text" autocomplete="off" spellcheck="false" placeholder="sb_publishable_...">
+  <button id="save">Connect</button><button class="outline" id="forget">Forget local settings</button>
+  <p class="hint">Never paste a database password, service-role key, secret key, Telnyx token or OpenAI key here.</p>
+ </section>
+ <section class="panel" id="login" hidden>
+  <h2>Administrator sign-in</h2>
+  <p>Sign in with the email address authorized for Threefold in the SQL <code>threefold_admins</code> table.</p>
+  <label for="email">Your email</label><input id="email" type="email" autocomplete="email">
+  <button id="send">Email me a secure sign-in link</button><button id="reconfigure" class="outline">Database settings</button>
+  <p class="hint">Sign-in emails require Supabase Auth email configuration and a previously created user. Public self-registration is disabled in this flow.</p>
+ </section>
+ <section id="dashboard" hidden>
+  <div class="panel"><div class="nav"><div><div class="eyebrow">Authorized administrator</div><h2>Today's pulse</h2></div><div><button id="reload">Refresh</button><button class="outline" id="signout">Sign out</button></div></div>
+   <div class="grid" id="metrics"></div><p class="hint" id="refreshed"></p>
+  </div>
+  <section class="panel"><h2>Recent system activity</h2><div id="activity">No activity yet.</div></section>
+  <section class="panel"><h2>Privacy boundary</h2>
+   <p>This dashboard shows aggregate operating data and audit metadata. Individual SMS transcripts and private Love Whispers are not exposed through its browser API.</p>
+   <p class="hint">Inbound events in REVIEW and outbound messages in REVIEW must be investigated in the Supabase management console before further processing.</p>
+  </section>
+ </section>
+ <p id="status" class="status" role="status"></p>
+ <footer>The admin login is enforced by Supabase Auth and PostgreSQL Row Level Security—not by hiding this public page. <a href="../privacy.html">Privacy Policy</a> · <a href="../terms.html">Terms</a></footer>
+</main>
+<script>
+(()=>{
+"use strict";
+const by=id=>document.getElementById(id), KEY='threefold_supabase_public_config';
+let sb=null;
+function msg(text,error=false){by('status').textContent=text;by('status').className='status'+(error?' error':'');}
+function show(which){['setup','login','dashboard'].forEach(id=>by(id).hidden=id!==which);}
+function parseConfig(url,key){
+ try {
+  const u=new URL(url);
+  if(u.protocol!=='https:' || !/^[a-z0-9-]+\.supabase\.co$/i.test(u.hostname))return null;
+  if(!/^sb_publishable_[A-Za-z0-9_-]+$/.test(key)&& !/^eyJ[A-Za-z0-9._-]+$/.test(key))return null;
+  return {url:u.origin,key};
+ }catch{return null;}
+}
+async function start(config){
+ if(!window.supabase?.createClient){msg('The Supabase library could not load.',true);return;}
+ sb=window.supabase.createClient(config.url,config.key,{auth:{persistSession:true,detectSessionInUrl:true}});
+ const {data,error}=await sb.auth.getSession();
+ if(error){msg(error.message,true);show('login');return;}
+ await showSession(data.session);
+ sb.auth.onAuthStateChange((_event,session)=>{setTimeout(()=>showSession(session),0);});
+}
+async function showSession(session){
+ if(!session){show('login');return;}
+ const {data,error}=await sb.from('threefold_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
+ if(error||!data){show('login');msg('This account is not authorized for Threefold administration.',true);return;}
+ show('dashboard');msg('Secure admin session active.');await refresh();
+}
+async function refresh(){
+ try {
+  msg('Loading metrics…');
+  const {data:summary,error:summaryError}=await sb.rpc('threefold_dashboard_counts');
+  if(summaryError)throw Error(summaryError.message);
+  const specs=[
+   ['Opted-in adults','enrolled'],
+   ['Awaiting consent','pendingConsent'],
+   ['Opted out','optedOut'],
+   ['Active couples','activeCouples'],
+   ['New SMS events','eventsPending'],
+   ['SMS event review','eventReview'],
+   ['Outbound waiting','outboundPending'],
+   ['Outbound review','outboundReview'],
+   ['Future reminders','remindersPending'],
+   ['Adventure library','adventureLibrary'],
+   ['Started adventures','startedAdventures']
+  ];
+  const vals=specs.map(([label,key])=>[label,summary[key]??0]);
+  by('metrics').replaceChildren();
+  vals.forEach(([label,value])=>{
+   const card=document.createElement('div');card.className='tile';
+   const m=document.createElement('div');m.className='metric';m.textContent=value;
+   const title=document.createElement('div');title.className='metric-label';title.textContent=label;
+   card.append(m,title);by('metrics').append(card);
+  });
+  const {data,error}=await sb.from('threefold_audit').select('created_at,action,context').order('created_at',{ascending:false}).limit(15);
+  if(error)throw Error(error.message);
+  by('activity').replaceChildren();
+  if(!data?.length)by('activity').textContent='No activity yet.';
+  (data||[]).forEach(a=>{
+   const item=document.createElement('div');item.className='audit-item';
+   item.textContent=new Date(a.created_at).toLocaleString()+' · '+a.action+' · '+(a.context||'');
+   by('activity').append(item);
+  });
+  by('refreshed').textContent='Refreshed '+new Date().toLocaleString();
+  msg('Database connection healthy.');
+ }catch(err){msg('Dashboard error: '+err.message,true);}
+}
+by('save').onclick=async()=>{
+ const config=parseConfig(by('project').value.trim(),by('pubkey').value.trim());
+ if(!config){msg('Please enter a valid Supabase project URL and publishable key.',true);return;}
+ try{localStorage.setItem(KEY,JSON.stringify(config));}catch{}
+ await start(config);
+};
+by('forget').onclick=async()=>{try{localStorage.removeItem(KEY)}catch{};if(sb)await sb.auth.signOut();sb=null;by('project').value='';by('pubkey').value='';show('setup');msg('Local configuration cleared.');};
+by('reconfigure').onclick=()=>show('setup');
+by('send').onclick=async()=>{
+ if(!sb)return;
+ const email=by('email').value.trim();
+ if(!email.includes('@')){msg('Enter a valid administrator email address.',true);return;}
+ const button=by('send');button.disabled=true;
+ const {error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:location.origin+location.pathname}});
+ button.disabled=false;
+ msg(error?error.message:'If this administrator account exists, a sign-in email has been requested.',!!error);
+};
+by('signout').onclick=async()=>{await sb.auth.signOut();show('login');msg('Signed out.');};
+by('reload').onclick=refresh;
+try{
+ const saved=JSON.parse(localStorage.getItem(KEY)||'null');
+ if(saved&&parseConfig(saved.url,saved.key)){
+  by('project').value=saved.url;by('pubkey').value=saved.key;start(saved);
+ } else show('setup');
+}catch{show('setup');}
+})();
+</script>
+</body>
+</html>

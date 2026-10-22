@@ -1,0 +1,4 @@
+# NEVER commit secret values.
+.env
+.env.*
+!.env.example
