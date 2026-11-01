@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-31T17:15:01.285Z",
+  "generatedAt": "2026-11-01T17:56:09.575Z",
   "criteria": {
     "tripName": "Bell Family Disney World Watch",
     "destination": "Walt Disney World, Orlando, Florida",
@@ -69,7 +69,7 @@
   },
   "agent": {
     "mode": "openai-agent-text",
-    "summary": "```json\n{\n  \"summary\": \"The Bell Family Disney World Watch report assesses trip estimates for a family of six driving from Texarkana/Genoa to Walt Disney World within a $2,000 to $3,000 budget. The most feasible plan is driving and staying at an off-site hotel with one park day, estimated at $2,850. More immersive options with additional park days or Disney value resort stays exceed the budget. Multiple trusted sources have been checked for deals, but no strong ticket or hotel discounts are currently available. The report advises careful, real-time verification before booking any options.\",\n  \"bestMove\": {\n    \"id\": \"drive-offsite-one-park-day\",\n    \"title\": \"Drive + off-site hotel + 1 Disney park day\",\n    \"estimatedTotal\": 2850,\n    \"summary\": \"Most realistic path to Disney inside the $2,000–$3,000 target. It keeps the magic, but limits park tickets.\",\n    \"action\": \"Watch for hotel rooms under $150/night and ticket promotions. Book only when the real total stays under $3,000.\",\n    \"score\": 87,\n    \"label\": \"Strong deal\",\n    \"sourceUrl\": \"https://disneyworld.disney.go.com/special-offers/\"\n  },\n  \"watchItems\": [\n    {\n      \"id\": \"drive-good-neighbor-two-days\",\n      \"title\": \"Drive + Good Neighbor hotel + 2 park days\",\n      \"estimatedTotal\": 3750,\n      \"summary\": \"Better Disney feel, but likely above budget unless a hotel or ticket discount appears.\",\n      \"action\": \"Use as stretch target. Alert only if total drops near $3,000.\",\n      \"score\": 77,\n      \"label\": \"Worth watching\",\n      \"sourceUrl\": \"https://disneyworld.disney.go.com/special-offers/\"\n    },\n    {\n      \"id\": \"drive-disney-value-promo\",\n      \"title\": \"Drive + Disney value resort promotion\",\n      \"estimatedTotal\": 4300,\n      \"summary\": \"Best experience, weakest budget fit. This only becomes interesting if Disney posts a major public offer.\",\n      \"action\": \"Watch official Disney special offers. Do not book unless the full math changes.\",\n      \"score\": 71,\n      \"label\": \"Worth watching\",\n      \"sourceUrl\": \"https://disneyworld.disney.go.com/special-offers/\"\n    }\n  ],\n  \"recommendations\": [\n    \"Focus on the 'drive-offsite-one-park-day' option as it fits within your budget and meets family needs.\",\n    \"Monitor hotel rates to find rooms under $150 per night and watch for any Disney ticket promotions.\",\n    \"Avoid booking until the total estimated cost is confirmed under $3,000 to prevent budget overruns.\",\n    \"Keep an eye on official Disney special offers and Good Neighbor hotel discounts for potential improvements.\",\n    \"Prioritize off-site or Good Neighbor lodging with a driving-friendly schedule and limited park days to maintain budget.\",\n    \"If budget allows, consider the two-park day Good Neighbor option only if prices drop significantly.\",\n    \"Manually check sources like Undercover Tourist as automatic data was unavailable.\",\n    \"Use low-crowd travel months and look for free breakfast and shuttle options to enhance convenience and savings.\"\n  ],\n  \"textAlertDraft\": \"Disney Alert: The drive + off-site hotel + 1 Disney park day trip estimate is currently $2,850. Please verify prices today and ensure the total stays under $3,000 before booking to stay on budget.\"\n}\n```",
+    "summary": "```json\n{\n  \"summary\": \"The Bell Family Disney World Watch report identifies practical travel deals for a family of six driving from the Texarkana/Genoa area to Walt Disney World. The ideal trip is 3-4 nights in off-site or value lodging with limited park days, targeting a budget between $2,000 and $3,000. Current strong options include a 1-park-day trip with off-site hotel estimated at $2,850, fitting well within budget and family needs but requiring price verification before booking. Better experiences with more park days or on-site resorts exceed the target budget and are recommended only if strong promotions appear. Recent checks of Disney offers, tickets, and flight prices found no immediate bookable deals or significant discounts. An urgent alert recommends confirming the under-budget deal promptly.\",\n  \"bestMove\": {\n    \"dealId\": \"drive-offsite-one-park-day\",\n    \"title\": \"Drive + off-site hotel + 1 Disney park day\",\n    \"estimatedTotal\": 2850,\n    \"summary\": \"Most realistic path to Disney inside the $2,000–$3,000 target. It keeps the magic, but limits park tickets.\",\n    \"action\": \"Watch for hotel rooms under $150/night and ticket promos. Book only when the real total stays under $3,000.\",\n    \"sourceUrl\": \"https://disneyworld.disney.go.com/special-offers/\"\n  },\n  \"watchItems\": [\n    {\n      \"dealId\": \"drive-good-neighbor-two-days\",\n      \"title\": \"Drive + Good Neighbor hotel + 2 park days\",\n      \"estimatedTotal\": 3750,\n      \"summary\": \"Better Disney feel, but likely above budget unless a hotel or ticket discount appears.\",\n      \"action\": \"Use as stretch target. Alert only if total drops near $3,000.\",\n      \"sourceUrl\": \"https://disneyworld.disney.go.com/special-offers/\"\n    },\n    {\n      \"dealId\": \"drive-disney-value-promo\",\n      \"title\": \"Drive + Disney value resort promotion\",\n      \"estimatedTotal\": 4300,\n      \"summary\": \"Best experience, weakest budget fit. This only becomes interesting if Disney posts a major public offer.\",\n      \"action\": \"Watch official Disney special offers. Do not book unless the full math changes.\",\n      \"sourceUrl\": \"https://disneyworld.disney.go.com/special-offers/\"\n    },\n    {\n      \"sourceId\": \"wdw-special-offers\",\n      \"title\": \"Walt Disney World Special Offers\",\n      \"summary\": \"Checked Walt Disney World Special Offers. Review snippets and prices before treating anything as bookable.\",\n      \"action\": \"Open this source and verify whether the price signal applies to your dates and family size.\",\n      \"sourceUrl\": \"https://disneyworld.disney.go.com/special-offers/\"\n    },\n    {\n      \"sourceId\": \"wdw-tickets\",\n      \"title\": \"Walt Disney World Tickets\",\n      \"summary\": \"Checked Walt Disney World Tickets. Review snippets and prices before treating anything as bookable.\",\n      \"action\": \"Open this source and verify whether the price signal applies to your dates and family size.\",\n      \"sourceUrl\": \"https://disneyworld.disney.go.com/admission/tickets/\"\n    }\n  ],\n  \"recommendations\": [\n    \"Focus on the off-site hotel plus 1 park day deal estimated at $2,850, as it meets the budget and family needs best.\",\n    \"Wait for hotel rooms priced under $150/night and keep an eye on ticket promotions to reduce the total below $3,000 before booking.\",\n    \"Consider the Good Neighbor hotel with 2 park days deal only if strong discounts bring the price near $3,000.\",\n    \"Do not book Disney value resort promotions unless major public offers significantly lower total costs.\",\n    \"Regularly check Walt Disney World Special Offers and ticket sites for updates applicable to your dates and family size.\",\n    \"Prioritize free breakfast, safe family-friendly lodging, and driving-friendly schedules.\",\n    \"Avoid assuming prices are final; verify all costs before confirming bookings.\"\n  ],\n  \"textAlertDraft\": \"Disney Alert: The Drive + off-site hotel + 1 Disney park day trip is currently estimated at $2,850. This is within your $2,000–$3,000 budget range. Please verify hotel and ticket prices today before booking to ensure the total stays under $3,000.\"\n}\n```",
     "bestMove": "Review the generated recommendations and verify prices before booking.",
     "watchItems": [],
     "recommendations": [],
@@ -94,7 +94,7 @@
       "summary": "Checked Walt Disney World Special Offers. Review snippets and prices before treating anything as bookable.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-10-31T17:14:51.557Z"
+      "checkedAt": "2026-11-01T17:56:00.498Z"
     },
     {
       "sourceId": "wdw-tickets",
@@ -108,7 +108,7 @@
       "snippets": [
         "y World and will be redirected to Hong Kong website to purchase Hong Kong Disneyland Park Tickets from Hong Kong International Theme Parks Limited. FPO: By clicking Continue You are going to another Disney site and a different privacy policy, terms of use and/or sales terms and conditions may apply. Do you wa"
       ],
-      "checkedAt": "2026-10-31T17:14:52.206Z"
+      "checkedAt": "2026-11-01T17:56:01.028Z"
     },
     {
       "sourceId": "undercover-tourist",
@@ -134,7 +134,7 @@
         "mpException(e)} })(this.gbar_); // Google Inc. ExploreFlightsHotelsVacation rentalsFlight DealsTracked flight pricesTracked hotel pricesChange languageChange currencyChange locationFeedbackHelpwindow.wiz_progress&&window.wiz_progress();window.wiz_tick&&window.wiz_tick('eixcv');Time for an upgradeLooks like yo",
         "\"}; Skip to main contentAccessibility feedbackChange appearanceSign inExploreFlightsHotelsVacation rentalsthis.gbar_=this.gbar_||{};(function(_){var window=this; try{ _.ue=function(a,b,c){if(!a.o)if(c instanceof Array){c=_.D(c);var d=c.next();try{for(;!d.done;d=c.next())_.ue(a,b,d.value)}finally{_.E(c,d)}}els"
       ],
-      "checkedAt": "2026-10-31T17:14:51.978Z"
+      "checkedAt": "2026-11-01T17:56:00.930Z"
     },
     {
       "sourceId": "southwest",
@@ -146,7 +146,7 @@
       "summary": "Checked Southwest Low Fare Calendar. Review snippets and prices before treating anything as bookable.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-10-31T17:14:55.037Z"
+      "checkedAt": "2026-11-01T17:56:00.741Z"
     }
   ],
   "deals": [
@@ -229,7 +229,7 @@
       "sourceUrl": "https://disneyworld.disney.go.com/special-offers/"
     },
     {
-      "id": "wdw-special-offers-2026-10-31",
+      "id": "wdw-special-offers-2026-11-01",
       "sourceId": "wdw-special-offers",
       "sourceName": "Walt Disney World Special Offers",
       "sourceUrl": "https://disneyworld.disney.go.com/special-offers/",
@@ -245,12 +245,12 @@
       "action": "Open this source and verify whether the price signal applies to your dates and family size.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-10-31T17:14:51.557Z",
+      "checkedAt": "2026-11-01T17:56:00.498Z",
       "score": 57,
       "label": "Maybe"
     },
     {
-      "id": "wdw-tickets-2026-10-31",
+      "id": "wdw-tickets-2026-11-01",
       "sourceId": "wdw-tickets",
       "sourceName": "Walt Disney World Tickets",
       "sourceUrl": "https://disneyworld.disney.go.com/admission/tickets/",
@@ -268,12 +268,12 @@
       "snippets": [
         "y World and will be redirected to Hong Kong website to purchase Hong Kong Disneyland Park Tickets from Hong Kong International Theme Parks Limited. FPO: By clicking Continue You are going to another Disney site and a different privacy policy, terms of use and/or sales terms and conditions may apply. Do you wa"
       ],
-      "checkedAt": "2026-10-31T17:14:52.206Z",
+      "checkedAt": "2026-11-01T17:56:01.028Z",
       "score": 57,
       "label": "Maybe"
     },
     {
-      "id": "google-flights-dfw-mco-2026-10-31",
+      "id": "google-flights-dfw-mco-2026-11-01",
       "sourceId": "google-flights-dfw-mco",
       "sourceName": "Google Flights DFW to Orlando",
       "sourceUrl": "https://www.google.com/travel/flights",
@@ -293,12 +293,12 @@
         "mpException(e)} })(this.gbar_); // Google Inc. ExploreFlightsHotelsVacation rentalsFlight DealsTracked flight pricesTracked hotel pricesChange languageChange currencyChange locationFeedbackHelpwindow.wiz_progress&&window.wiz_progress();window.wiz_tick&&window.wiz_tick('eixcv');Time for an upgradeLooks like yo",
         "\"}; Skip to main contentAccessibility feedbackChange appearanceSign inExploreFlightsHotelsVacation rentalsthis.gbar_=this.gbar_||{};(function(_){var window=this; try{ _.ue=function(a,b,c){if(!a.o)if(c instanceof Array){c=_.D(c);var d=c.next();try{for(;!d.done;d=c.next())_.ue(a,b,d.value)}finally{_.E(c,d)}}els"
       ],
-      "checkedAt": "2026-10-31T17:14:51.978Z",
+      "checkedAt": "2026-11-01T17:56:00.930Z",
       "score": 56,
       "label": "Maybe"
     },
     {
-      "id": "southwest-2026-10-31",
+      "id": "southwest-2026-11-01",
       "sourceId": "southwest",
       "sourceName": "Southwest Low Fare Calendar",
       "sourceUrl": "https://www.southwest.com/air/low-fare-calendar/",
@@ -314,12 +314,12 @@
       "action": "Open this source and verify whether the price signal applies to your dates and family size.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-10-31T17:14:55.037Z",
+      "checkedAt": "2026-11-01T17:56:00.741Z",
       "score": 56,
       "label": "Maybe"
     },
     {
-      "id": "undercover-tourist-2026-10-31",
+      "id": "undercover-tourist-2026-11-01",
       "sourceId": "undercover-tourist",
       "sourceName": "Undercover Tourist Disney World Tickets",
       "sourceUrl": "https://www.undercovertourist.com/orlando/walt-disney-world-resort/",
@@ -335,7 +335,7 @@
       "action": "Open manually; this source could not be checked automatically.",
       "pricesFound": [],
       "snippets": [],
-      "checkedAt": "2026-10-31T17:14:55.038Z",
+      "checkedAt": "2026-11-01T17:56:01.028Z",
       "score": 52,
       "label": "Pass for now"
     }
